@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+	<head>
+		<link href="https://lib.baomitu.com/twitter-bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" rel="stylesheet">
+		<link href="https://lib.baomitu.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+		<link rel="styleSheet" href="/index/main.css" />
+		<script src="https://lib.baomitu.com/lodash.js/4.17.4/lodash.min.js"></script>
+		<script src="https://lib.baomitu.com/vue/2.1.10/vue.min.js"></script>
+		<script src="https://lib.baomitu.com/vue-resource/1.2.0/vue-resource.min.js"></script>
+		<!-- <script src="https://lib.baomitu.com/vue-i18n/5.0.0/vue-i18n.min.js"></script> -->
+		<script src="https://lib.baomitu.com/vue-router/2.2.0/vue-router.min.js"></script>
+
+		<title>节点跟踪</title>
+	</head>
+	<body>
+		<div id="app" class="container-fluid">
+			<div class="row">
+				<div class="col-xl-2 col-md-3"><router-list></router-list></div>
+				<div class="col-lg-10 col-md-9"><router-view></router-view></div>
+			</div>
+			<div class="fixed-top-right">
+				<data-alert ref="alert"></data-alert>
+			</div>
+		</div>
+		<script src="./index/router-list.js"></script>
+		<script src="./index/router-data.js"></script>
+		<script src="./index/router-data-edit.js"></script>
+		<script src="./index/data-field.js"></script>
+		<script src="./index/data-alert.js"></script>
+		<script src="./index/main.js"></script>
+	</body>
+</html>

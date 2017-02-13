@@ -1,0 +1,12 @@
+[app]
+# logger = "/tmp/ntracker.log"
+
+[node]
+# listens on:
+server_addr = ":7472"
+# tcp keepalive interval
+keepalive = 15
+
+[api]
+# listens on:
+server_addr = ":8360"

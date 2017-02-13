@@ -1,0 +1,41 @@
+<div>
+	<div class="form-group row" v-if="type==='string'">
+		<label class="col-lg-2 col-form-label text-right">
+			{{name}} <small class="text-muted">[{{index}}]</small>
+		</label>
+		<div class="col-lg-8">
+			<input  type="text" class="form-control" v-bind:value="value" v-on:change="update"/>
+		</div>
+		<div class="col-lg-2">
+			<small class="text-muted">string</small>
+		</div>
+	</div>
+	<div class="form-group row" v-if="type==='number'">
+		<label class="col-lg-2 col-form-label text-right">
+			{{name}} <small class="text-muted">[{{index}}]</small>
+		</label>
+		<div class="col-lg-8">
+			<input type="number" class="form-control" v-bind:value="value" v-on:change="update" />
+		</div>
+		<div class="col-lg-2">
+			<small class="text-muted">integer</small>
+		</div>
+	</div>
+	<div class="form-group row" v-if="type==='boolean'">
+		<label class="col-lg-2 col-form-label text-right">
+			<small class="text-muted">[{{index}}]</small>
+		</label>
+		<div class="col-lg-8">
+			<div class="form-check">
+				<label class="form-check-label">
+					<input type="checkbox" class="form-check-input" v-bind:checked="value" v-on:change="update" />
+					{{name}}
+				</label>
+			</div>
+		</div>
+		<div class="col-lg-2">
+			<small class="text-muted">boolean</small>
+		</div>
+	</div>
+
+</div>

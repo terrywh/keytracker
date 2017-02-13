@@ -1,0 +1,36 @@
+.active .badge-default {
+	background: #fff;
+	color: #777;
+}
+
+.fade-enter-active, .fade-leave-to, .fade-leave-active {
+  transition: opacity .5s
+}
+.fade-enter, .fade-leave-active, .fade-leave-to {
+  opacity: 0
+}
+
+.hljs-attr {
+	font-weight: bold;
+}
+.hljs-number {
+	color: #f5871f;
+}
+.hljs-string {
+	color: #718c00;
+}
+.hljs-literal {
+	color: #871ff5;
+}
+.hljs-comment{
+	color: #8e908c;
+}
+.fixed-top-right {
+	position: fixed;
+	top: 1rem;
+	right: 1rem;
+	z-index: 1050; /* modal */
+}
+.fixed-top-right .alert {
+	box-shadow: 0 0 16px #777;
+}

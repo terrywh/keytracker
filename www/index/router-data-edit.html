@@ -1,0 +1,26 @@
+<transition name="fade">
+<div>
+	<div class="modal" style="display: block;">
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">编辑</h5>
+					<button type="button" class="close" v-on:click="cancel" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<p class="text-muted">正在编辑 命名空间 [<strong>{{$route.params.ns}}</strong>] 节点 [<strong>{{$route.params.key}}</strong>] 数据项：</p>
+					<data-field v-for="(item,index) in data" v-bind:name="item.key" v-bind:data="item.val" v-bind:index="index"></data-field>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" v-on:click="confirm"><i class="fa fa-check"></i> 确定</button>
+					<button type="button" class="btn btn-secondary" v-on:click="cancel">取消</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal-backdrop fade show"></div>
+</div>
+
+</transition>

@@ -1,0 +1,15 @@
+<transition-group name="fade" tag="div">
+	<div class="alert index-alert" v-for="item in data" v-bind:class="'alert-'+item.type" v-bind:key="item" role="alert">
+		<strong v-if="item.type === 'success'">
+			<i class="fa fa-star"></i> 成功!
+		</strong>
+		<strong v-if="item.type === 'warning'">
+			<i class="fa fa-exclamation-triangle"></i> 警告!
+		</strong>
+		<strong v-if="item.type === 'danger'">
+			<i class="fa fa-times-circle"></i> 失败!
+		</strong>
+
+		 {{item.text}}
+	</div>
+</transition-group>
