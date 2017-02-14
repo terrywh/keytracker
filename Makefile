@@ -1,6 +1,6 @@
 
 PACKAGE=github.com/terrywh/ntracker
-VERSION=0.1.0
+VERSION=0.1.1
 
 SOURCE_ENTRY=main.go
 SOURCE_FILES=$(wildcard *.go) $(wildcard */*.go)
