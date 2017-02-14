@@ -31,7 +31,10 @@ Vue.component("data-field", function(resolve, reject) {
 							this.value = e.currentTarget.value;
 						break;
 					}
-				}
+				},
+				focus: function() {
+					this.$el.querySelector("input").focus();
+				},
 			}
 
 		});

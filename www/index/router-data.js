@@ -11,21 +11,19 @@ Vue.component("router-data", function(resolve, reject) {
 					});
 					this.reload > 0 && (this.$reloadTimeout = setTimeout(this.$reload.bind(this), this.reload * 1000));
 				};
-				this.$reload();
+				this.$app.data.length || this.$reload();
+			},
+			destroyed: function() {
+				clearTimeout(this.$reloadTimeout);
 			},
 			data: function() {
-				return {"reload": 15};
+				return {"reload": 0};
 			},
 			watch: {
 				reload: function() {
 					clearTimeout(this.$reloadTimeout);
 					this.$reloadTimeout = setTimeout(this.$reload.bind(this), 500);
 				},
-				'$route': function(to, from) {
-					this.$app.app = [];
-					clearTimeout(this.$reloadTimeout);
-					this.$reloadTimeout = setTimeout(this.$reload.bind(this), 150);
-				}
 			},
 			methods: {
 				format: function(item) {

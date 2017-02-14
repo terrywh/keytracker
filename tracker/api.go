@@ -134,8 +134,9 @@ func updateRouter(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 				return
 			}
 			// 校验赋值的数据类型必须吻合
-			for k,v := range data {
-				if reflect.TypeOf(v).Kind() != reflect.TypeOf(n.data[k]).Kind() {
+			for k1,v1 := range n.data {
+				v2, ok := data[k1];
+				if ok && v2 != nil && reflect.TypeOf(v1).Kind() != reflect.TypeOf(v2).Kind() {
 				// if v.(type) != n.data[k].(type) {
 					w.WriteHeader(400)
 					w.Write([]byte("illegal post data - type"))
@@ -145,7 +146,11 @@ func updateRouter(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 			n.wlock.Lock();
 			u := 0
 			for k,v := range data {
-				n.data[k] = v
+				if v == nil {
+					delete(n.data, k)
+				}else{
+					n.data[k] = v
+				}
 				u++;
 			}
 			fmt.Fprintf(w, `{"updated":%d}`, u)

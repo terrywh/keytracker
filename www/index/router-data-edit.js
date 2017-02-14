@@ -3,16 +3,21 @@ Vue.component("router-data-edit", function(resolve, reject) {
 		resolve({
 			template: response.body,
 			data: function() {
-				return {data: []};
+				return {"data": []};
 			},
 			beforeMount: function() {
 				this.$retry();
 			},
 			created: function() {
-				this.$find = function(data, key) {
-					for(var i=0;i<data.length;++i) {
-						if(data[i].key == key) {
-							return data[i];
+				this.$find = function(s) {
+					for(var i=0;i<this.$app.data.length;++i) {
+						if(this.$app.data[i].key == this.$route.params.key) {
+							if(s) {
+								this.$app.data.splice(i, 1, s);
+								break;
+							}else{
+								return this.$app.data[i];
+							}
 						}
 					}
 					return null;
@@ -29,11 +34,9 @@ Vue.component("router-data-edit", function(resolve, reject) {
 						r.push({"key": k, "val": d[k]});
 					});
 					this.data = r;
-					console.log(this.data);
 				};
 				this.$retry = function() {
-					var c = this.$find(this.$app.data, this.$route.params.key), self = this;
-					console.log(c)
+					var c = this.$find(), self = this;
 					if(c) {
 						this.$load(c);
 					}else if(this.$app.data.length > 0) {
@@ -44,24 +47,56 @@ Vue.component("router-data-edit", function(resolve, reject) {
 					}else{
 						setTimeout(this.$retry.bind(this), 100);
 					}
-				}
+				};
+				this.$removed = {};
 			},
 			methods: {
 				confirm: function() {
-					var c = {}, d = this.$find(this.$app.data, this.$route.params.key);
-
-					for(var i=0;i<this.$children.length;++i) {
-						if(this.$children[i].data !== this.$children[i].value) {
-							c[this.$children[i].name] = this.$children[i].value;
-							d[this.$children[i].name] = this.$children[i].value;
-						}
+					var c = {}, n = 0, d = this.$find(), r = {};
+					for(var key in this.$removed) {// 删除的项
+						++n;
+						c[key] = null;
 					}
-					this.$http.post("/update/" + this.$route.params.ns + "/" + this.$route.params.key, JSON.stringify(c)).then(function(response) {
-						this.$app.$refs.alert.success("设置将会被推送到该节点。");
-						this.$router.push('/namespace/' + this.$route.params.ns);
-					}, function() {
-						this.$app.$refs.alert.danger("设置将会被丢弃，请尝试刷新页面。");
+					// transition-group 变为一个元素
+					this.$children[0].$children.forEach(function(f) {
+						if(f.data != f.value) {
+							++n;
+							c[f.name] = f.value;
+						}
 					});
+					if(n > 0) {
+						this.$http.post("/update/" + this.$route.params.ns + "/" + this.$route.params.key, JSON.stringify(c)).then(function(response) {
+							this.$app.$refs.alert.success("共计变更 "+n+" 项设置将会被推送到该节点。");
+							r = Object.assign({}, d);
+							for(var key in c) {
+								if(c[key] === null) {
+									delete r[key]
+								}else{
+									r[key] = c[key];
+								}
+							}
+							this.$find(r);
+							this.$router.push('/namespace/' + this.$route.params.ns);
+						}, function() {
+							this.$app.$refs.alert.danger("未能设置，请重试！");
+						});
+					}else{
+						this.$router.push('/namespace/' + this.$route.params.ns);
+					}
+					this.$removed = {};
+				},
+				append: function(key, val) {
+					var self = this;
+					this.data.push({"key": key, "val": val});
+					setTimeout(function() {
+						var dfs = self.$children[0].$children;
+						// transition-group 变为一个元素
+						dfs[dfs.length-1].focus();
+					}, 150);
+				},
+				remove: function(index) {
+					var item = this.data.splice(index, 1)[0];
+					this.$removed[item.key] = null;
 				},
 				cancel: function() {
 					this.$router.push('/namespace/' + this.$route.params.ns);
