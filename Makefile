@@ -1,6 +1,6 @@
 
 PACKAGE=github.com/terrywh/ntracker
-VERSION=0.1.1
+VERSION=0.2.0
 
 VENDORS=${GOPATH}/src/BurntSushi/toml ${GOPATH}/src/julienschmidt/httprouter ${GOPATH}/src/gorilla/websocket
 
