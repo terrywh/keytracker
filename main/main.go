@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/terrywh/ntracker/config"
-	"github.com/terrywh/ntracker/server"
+	"github.com/terrywh/keytracker/config"
+	"github.com/terrywh/keytracker/server"
 	"os"
 	"os/signal"
 	"syscall"
@@ -20,7 +20,7 @@ func main() {
 	for {
 		s = <-c
 		if s == syscall.SIGUSR2 {
-			fmt.Fprintln(os.Stderr, "[info] ntracker rotate log file.")
+			fmt.Fprintln(os.Stderr, "[info] keytracker rotate log file.")
 			config.RotateLogger()
 		}
 	}

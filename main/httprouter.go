@@ -3,13 +3,13 @@ package main
 import (
 	"net/http"
 	"github.com/julienschmidt/httprouter"
-	"github.com/terrywh/ntracker/config"
+	"github.com/terrywh/keytracker/config"
 	"runtime"
 	"runtime/pprof"
 	"encoding/json"
 	"github.com/gorilla/websocket"
 
-	"github.com/terrywh/ntracker/server"
+	"github.com/terrywh/keytracker/server"
 )
 
 var router *httprouter.Router
@@ -34,11 +34,21 @@ func init() {
 
 func dataGet(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	w.Header().Set("Content-Type", "text/json")
-	w.Write([]byte("{}"))
+
+	DataGet(p[0].Value, w)
 }
 func dataList(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	w.Header().Set("Content-Type", "text/json")
-	w.Write([]byte("[]"))
+	w.Write([]byte("["))
+	n := 0
+	DataWalk(p[0].Value, func(key string, val interface{}) bool {
+		if n != 0 {
+			w.Write([]byte(","))
+		}
+		DataWrite(w, key, val, 0)
+		return true
+	})
+	w.Write([]byte("]"))
 }
 
 func sessionGet(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
@@ -79,7 +89,7 @@ func statusRouter(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	status.App.Path    = config.AppPath
 	status.App.Env     = config.AppEnv
 	status.App.ServerAddr = config.NodeServerAddr
-	// TODO 连接数量
+	// 连接数量
 	status.App.Sessions  = sessions
 
 	status.Go.Version  = runtime.Version()
@@ -98,7 +108,7 @@ func statusRouter(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 func statusMemProfRouter(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	w.Header().Set("Content-Type", "application/octet-stream")
-	w.Header().Set("Content-Disposition", "attachment; filename=ntracker_memory_profile.pprof")
+	w.Header().Set("Content-Disposition", "attachment; filename=keytracker_memory_profile.pprof")
 
 	pprof.WriteHeapProfile(w)
 }

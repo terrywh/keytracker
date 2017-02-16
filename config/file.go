@@ -54,7 +54,7 @@ func RotateLogger() {
 	if AppLogger != "" {
 		appLogger, err := os.OpenFile(AppLogger, os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0777)
 		if err != nil {
-			fmt.Fprintln(os.Stderr, "[error] ntracker failed to rotate log file:", err)
+			fmt.Fprintln(os.Stderr, "[error] keytracker failed to rotate log file:", err)
 			return
 		}
 		log.SetOutput(appLogger)

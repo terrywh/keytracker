@@ -89,6 +89,7 @@ func NewSession(conn io.ReadWriteCloser, addr string) *Session {
 }
 
 func (s *Session) Start(sh SessionHandler) {
+	sh.StartHandler(s)
 	d := json.NewDecoder(s.conn)
 	for d.More() {
 		r := Request{}

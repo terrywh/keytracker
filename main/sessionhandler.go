@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/terrywh/ntracker/server"
+	"github.com/terrywh/keytracker/server"
 	"sync/atomic"
+	"log"
 )
 
 type Tag struct {
@@ -22,6 +23,7 @@ func init() {
 var sessions int32
 
 func (sh *SessionHandler) StartHandler(s *server.Session) {
+	log.Println("[info] session started:", s.RemoteAddr)
 	atomic.AddInt32(&sessions, 1)
 }
 
@@ -47,6 +49,7 @@ func (sh *SessionHandler) RequestHandler(s *server.Session, r *server.Request) {
 }
 
 func (sh *SessionHandler) CloseHandler(s *server.Session) {
+	log.Println("[info] session closed:", s.RemoteAddr)
 	atomic.AddInt32(&sessions, -1)
 	WatcherCleanup(s)
 	DataCleanup(s)

@@ -1,5 +1,5 @@
 
-PACKAGE=github.com/terrywh/ntracker
+PACKAGE=github.com/terrywh/keytracker
 VERSION=0.2.0
 
 VENDORS=${GOPATH}/src/BurntSushi/toml ${GOPATH}/src/julienschmidt/httprouter ${GOPATH}/src/gorilla/websocket
@@ -7,7 +7,7 @@ VENDORS=${GOPATH}/src/BurntSushi/toml ${GOPATH}/src/julienschmidt/httprouter ${G
 SOURCE_ENTRY=$(wildcard main/*.go)
 SOURCE_FILES=$(wildcard *.go) $(wildcard */*.go)
 
-TARGET=bin/ntracker
+TARGET=bin/keytracker
 
 .PHONY: vendor test run
 

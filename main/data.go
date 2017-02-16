@@ -1,11 +1,12 @@
 package main
 
 import (
-	"github.com/terrywh/ntracker/trie"
-	"github.com/terrywh/ntracker/server"
+	"github.com/terrywh/keytracker/trie"
+	"github.com/terrywh/keytracker/server"
 	"sync/atomic"
 	"sync"
 	"fmt"
+	"io"
 )
 
 var dataStore trie.Trie
@@ -37,7 +38,7 @@ func DataSet(key string, val interface{}) bool {
 	}
 }
 
-func DataGet(key string, s *server.Session) {
+func DataGet(key string, s io.Writer) {
 	dataStoreL.RLock()
 	defer dataStoreL.RUnlock()
 	n := dataStore.Get(key)
@@ -48,7 +49,7 @@ func DataGet(key string, s *server.Session) {
 	}
 }
 
-func DataList(key string, s *server.Session) {
+func DataList(key string, s io.Writer) {
 	dataStoreL.RLock()
 	defer dataStoreL.RUnlock()
 	n := dataStore.Get(key)
@@ -58,6 +59,17 @@ func DataList(key string, s *server.Session) {
 			return true
 		})
 	}
+}
+
+func DataWalk(key string, cb func (key string, val interface{}) bool) {
+		dataStoreL.RLock()
+		defer dataStoreL.RUnlock()
+		n := dataStore.Get(key)
+		if n != nil {
+			n.Walk(func(c *trie.Node) bool {
+				return cb(key + "/" + c.Key, c.GetValue())
+			})
+		}
 }
 
 func DataCleanup(s *server.Session) {
@@ -73,7 +85,7 @@ func DataCleanup(s *server.Session) {
 	})
 }
 
-func DataWrite(s *server.Session, key string, val interface{}, y int) {
+func DataWrite(s io.Writer, key string, val interface{}, y int) {
 	switch val.(type) {
 	case float64:
 		fmt.Fprintf(s, "{\"k\":\"%s\",\"v\":%v,\"y\":%d}\n", key, val, y)

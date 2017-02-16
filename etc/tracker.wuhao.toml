@@ -1,5 +1,5 @@
 [app]
-# logger = "/tmp/ntracker.log"
+# logger = "/tmp/keytracker.log"
 
 [node]
 # listens on:

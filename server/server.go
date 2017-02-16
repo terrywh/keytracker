@@ -31,7 +31,7 @@ func ListenAndServe(addr string, sh SessionHandler, hh http.Handler) {
 		}
 		conn := ccc.(*net.TCPConn)
 		initConn(conn)
-
+		// 至少发送一个字节数据后开始服务（用于识别协议）
 		rd := bufio.NewReader(ccc)
 		pbyte, _ := rd.Peek(1)
 		if pbyte[0] == byte('{') {
