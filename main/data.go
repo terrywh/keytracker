@@ -1,0 +1,85 @@
+package main
+
+import (
+	"github.com/terrywh/ntracker/trie"
+	"github.com/terrywh/ntracker/server"
+	"sync/atomic"
+	"sync"
+	"fmt"
+)
+
+var dataStore trie.Trie
+var dataStoreL *sync.RWMutex
+
+func init() {
+	dataStore = trie.NewTrie()
+	dataStoreL = &sync.RWMutex{}
+}
+var keyID int32
+func DataKey(key string) string {
+	return fmt.Sprintf("%s%010d", key, atomic.AddInt32(&keyID, 1))
+}
+
+func DataSet(key string, val interface{}) bool {
+	dataStoreL.Lock()
+	defer dataStoreL.Unlock()
+	n := dataStore.Get(key)
+	if n == nil && val != nil {
+		dataStore.Create(key).SetValue(val)
+		return true // change!
+	} else if n == nil && val == nil {
+		return false
+	} else if n != nil && val != nil {
+		return n.SetValue(val)
+	} else /*if n!= nil && val == nil */ {
+		dataStore.Remove(key)
+		return true
+	}
+}
+
+func DataGet(key string, s *server.Session) {
+	dataStoreL.RLock()
+	defer dataStoreL.RUnlock()
+	n := dataStore.Get(key)
+	if n == nil {
+		DataWrite(s, key, nil, 0)
+	}else{
+		DataWrite(s, key, n.GetValue(), 0)
+	}
+}
+
+func DataList(key string, s *server.Session) {
+	dataStoreL.RLock()
+	defer dataStoreL.RUnlock()
+	n := dataStore.Get(key)
+	if n != nil {
+		n.Walk(func(c *trie.Node) bool {
+			DataWrite(s, key + "/" + c.Key, c.GetValue(), 0)
+			return true
+		})
+	}
+}
+
+func DataCleanup(s *server.Session) {
+	dataStoreL.Lock()
+	defer dataStoreL.Unlock()
+
+	s.WalkTag(func(tag interface{}) bool {
+		_tag := tag.(Tag)
+		if !_tag.IsWatcher {
+			dataStore.Remove(_tag.Key)
+		}
+		return true
+	})
+}
+
+func DataWrite(s *server.Session, key string, val interface{}, y int) {
+	switch val.(type) {
+	case float64:
+		fmt.Fprintf(s, "{\"k\":\"%s\",\"v\":%v,\"y\":%d}\n", key, val, y)
+	case bool:
+		fmt.Fprintf(s, "{\"k\":\"%s\",\"v\":%t,\"y\":%d}\n", key, val, y)
+	default:
+		fmt.Fprintf(s, "{\"k\":\"%s\",\"v\":\"%v\",\"y\":%d}\n", key, val, y)
+	}
+}

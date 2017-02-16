@@ -1,59 +1,46 @@
 ### 基本功能
 
-1. 状态监控
-	由各个应用节点、服务连接并上报状态、PING，以确认应用、节点、服务的状态；
-2. 配置推送
-	向各应用、节点推送设置更新数据；
-3. 节点推送
-	节点变化通知同命名空间的其他节点；
-4. 数据接口
-	命名空间、节点数据接口；
 
 
 ### 交互数据示例
 
-节点 => 服务器：
+** x ** 存在如下值：
+	* 1 - 设置数据 (+2 - 持久 +4 - 后缀)
+	* 256 - 监控
+	* 512 - 读取数据
+	* 1024 - 列表数据
 
-1. 握手登记：
+** y ** 存在如下值：
+	* 0 - 普通数据变更
+	* 1 - KEY后缀推送（与上述 4）
+```
+	// 1. 临时数据（与当前连接绑定）
+	<- {"k":"/a/key_1","v":"aaaaa","x":1}
 
-	{"action":"hello","ns":"aaa","key":"yyyyy","ping":5000,"stats":{"key1":1,"key2":100,"key3":"aaaaaaa","key4":true}}
-<!--
-	{"action":"hello","ns":"aaa","key":"xxxxx","ping":6000,"stats":{"key1":2,"key2":200,"key3":"bbbbbbb","key4":false}}
-	{"action":"hello","ns":"bbb","key":"zzzzz","ping":7000,"stats":{"key1":3,"key2":300,"key3":"ccccccc","key4":true}}
--->
+	// 2. 持久数据
+	<- {"k":"/a/key_2","v":"bbbbb","x":3} // 1 + 2
 
-	* 命名空间 ping - aaa 标识 key - yyyy 唯一指示一个节点信息；
-	* 交互超时 ping - 5000 单位 秒，两次交互中超过该时间服务端将主动断开；
-	* 数据初始化 stats 请参见 3.数据上报
+	// 3. 临时后缀数据
+	<- {"k":"/a/key_","v":"bbbbb","x":5} // 1 + 4
 
-2. 探活：
+	// 4. 持久后缀数据
+	<- {"k":"/a/key_","v":"bbbbb","x":7} // 1 + 2 + 4
 
-	{"action":"ping"}
+	// 5. 删除数据
+	<- {"k":"/a/key_1","v":null,"x":0} // v=null
 
-3. 数据上报：
+	// 6. 监控数据（当 /a/key_1 或 /a/key_2 变更时推送数据，/a/key_1/key_3 不会触发）
+	<- {"k":"/a","v":null,"x":256}
 
-	{"action":"data","stats":{"key2":100,"key3":"fffffff"},"delta":{"key1":-1}}
+	// 7. 读取数据
+	<- {"k":"/a/key_1","v":null,"x":512}
 
-	* 设置 key2 = 100
-	* 设置 key3 = "fffffff"
-	* 设置 key4 = key4 -1
+	// 8. 列表数据
+	<- {"k":"/a","v":null,"x":1024}
 
-服务器 => 节点：
+	// 7. 数据
+	-> {"k":"/a/key_1","v":"aaaaa","y":0}
+	-> {"k":"/a/key_0000000002","v":"aaaaa","y":1}
+	-> {"k":"/a/key_1","v":null,"y":0} // 数据被删除
 
-1. 探活回复：
-
-	{"action":"pong"}
-
-2. 状态推送：
-
-	{"action":"data","data":{"key3":"ddddddd"}}
-
-	* 设置数据 key3 变更为 "ddddddd"
-
-
-3. 节点增减、状态：
-
-	{"action":"node","node":{"xxxxx":false,"yyyyy":true}}
-
-	* 节点 xxxxx 下线
-	* 节点 yyyyy 上线
+```

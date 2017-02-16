@@ -2,21 +2,23 @@
 PACKAGE=github.com/terrywh/ntracker
 VERSION=0.1.1
 
-SOURCE_ENTRY=main.go
+VENDORS=${GOPATH}/src/BurntSushi/toml ${GOPATH}/src/julienschmidt/httprouter ${GOPATH}/src/gorilla/websocket
+
+SOURCE_ENTRY=$(wildcard main/*.go)
 SOURCE_FILES=$(wildcard *.go) $(wildcard */*.go)
 
 TARGET=bin/ntracker
 
-.PHONY: test run
+.PHONY: vendor test run
 
 all: ${TARGET}
 
-${TARGET}: ${SOURCE_FILES}
-	${GOROOT}/bin/go build -ldflags "-X ${PACKAGE}/config.AppVersion=${VERSION}" -o $@ ${SOURCE_ENTRY}
+${TARGET}: vendor ${SOURCE_FILES}
+	${GOROOT}/bin/go build -ldflags "-X ${PACKAGE}/config.AppVersion=${VERSION}" -o $@ ${PACKAGE}/main
 
-test:
+vendor:
 
-run:
+run: vendor
 # 测试状态设置 GOGC 提高内存回收频率
 	GOGC=10 ${GOROOT}/bin/go run -ldflags "-X ${PACKAGE}/config.AppVersion=${VERSION} -X ${PACKAGE}/config.AppPath=/data/godocs/src/${PACKAGE}" ${SOURCE_ENTRY}
 
