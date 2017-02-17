@@ -7,6 +7,7 @@ import (
 	"sync"
 	"fmt"
 	"io"
+	"path"
 )
 
 var dataStore trie.Trie
@@ -19,6 +20,14 @@ func init() {
 var keyID int32
 func DataKey(key string) string {
 	return fmt.Sprintf("%s%010d", key, atomic.AddInt32(&keyID, 1))
+}
+func DataKeyFlat(k string) string {
+	k = path.Clean(k)
+	if k == "/" {
+		return ""
+	} else {
+		return k
+	}
 }
 
 func DataSet(key string, val interface{}) bool {
@@ -49,27 +58,30 @@ func DataGet(key string, s io.Writer) {
 	}
 }
 
-func DataList(key string, s io.Writer) {
+func DataList(key string, s io.Writer, y int, cb func()) {
 	dataStoreL.RLock()
 	defer dataStoreL.RUnlock()
 	n := dataStore.Get(key)
 	if n != nil {
 		n.Walk(func(c *trie.Node) bool {
-			DataWrite(s, key + "/" + c.Key, c.GetValue(), 0)
+			DataWrite(s, key + "/" + c.Key, c.GetValue(), y)
 			return true
 		})
+	}
+	if cb != nil {
+		cb()
 	}
 }
 
 func DataWalk(key string, cb func (key string, val interface{}) bool) {
-		dataStoreL.RLock()
-		defer dataStoreL.RUnlock()
-		n := dataStore.Get(key)
-		if n != nil {
-			n.Walk(func(c *trie.Node) bool {
-				return cb(key + "/" + c.Key, c.GetValue())
-			})
-		}
+	dataStoreL.RLock()
+	defer dataStoreL.RUnlock()
+	n := dataStore.Get(key)
+	if n != nil {
+		n.Walk(func(c *trie.Node) bool {
+			return cb(key + "/" + c.Key, c.GetValue())
+		})
+	}
 }
 
 func DataCleanup(s *server.Session) {
@@ -86,6 +98,10 @@ func DataCleanup(s *server.Session) {
 }
 
 func DataWrite(s io.Writer, key string, val interface{}, y int) {
+	if val == nil {
+		fmt.Fprintf(s, "{\"k\":\"%s\",\"v\":null,\"y\":%d}\n", key, y)
+		return
+	}
 	switch val.(type) {
 	case float64:
 		fmt.Fprintf(s, "{\"k\":\"%s\",\"v\":%v,\"y\":%d}\n", key, val, y)

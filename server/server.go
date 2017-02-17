@@ -33,8 +33,10 @@ func ListenAndServe(addr string, sh SessionHandler, hh http.Handler) {
 		initConn(conn)
 		// 至少发送一个字节数据后开始服务（用于识别协议）
 		rd := bufio.NewReader(ccc)
-		pbyte, _ := rd.Peek(1)
-		if pbyte[0] == byte('{') {
+		pbyte, err := rd.Peek(1)
+		if err != nil {
+			log.Println("[warning] socket diconnected before protocol detection")
+		} else if pbyte[0] == byte('{') {
 			// detect 协议
 			s := NewSession(&sessionConnPeeker{rd, conn}, conn.RemoteAddr().String())
 			go s.Start(sh)

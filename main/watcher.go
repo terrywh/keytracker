@@ -5,6 +5,7 @@ import (
 	"sync"
 	"github.com/terrywh/keytracker/server"
 	"strings"
+	"log"
 )
 var watchers map[string]*list.List
 var watchersL *sync.RWMutex
@@ -25,6 +26,8 @@ func WatcherAppend(key string, s *server.Session) {
 	}
 	watcher.PushBack(s)
 	s.AddTag(Tag{key, true})
+
+	log.Println("[info] watcher append:", key)
 }
 
 func WatcherRemove(key string, s *server.Session) {
@@ -42,6 +45,7 @@ func WatcherRemove(key string, s *server.Session) {
 	if watcher.Len() == 0 {
 		delete(watchers,key)
 	}
+	log.Println("[info] watcher removed:", key)
 }
 
 func WatcherCleanup(s *server.Session) {

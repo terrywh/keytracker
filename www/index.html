@@ -3,31 +3,63 @@
 	<head>
 		<link href="https://lib.baomitu.com/twitter-bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" rel="stylesheet">
 		<link href="https://lib.baomitu.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-		<link rel="styleSheet" href="/index/main.css" />
-		<script src="https://lib.baomitu.com/lodash.js/4.17.4/lodash.min.js"></script>
 		<script src="https://lib.baomitu.com/vue/2.1.10/vue.min.js"></script>
 		<script src="https://lib.baomitu.com/vue-resource/1.2.0/vue-resource.min.js"></script>
-		<!-- <script src="https://lib.baomitu.com/vue-i18n/5.0.0/vue-i18n.min.js"></script> -->
-		<script src="https://lib.baomitu.com/vue-router/2.2.0/vue-router.min.js"></script>
 
-		<title>节点跟踪</title>
+		<title>数据管理</title>
+		<style>
+			html,body {
+				height: 100%;
+			}
+			#app {
+				overflow: scroll;
+				height: 100%;
+				width: 100%;
+			}
+			.column {
+				border-top: 1px dashed lightgrey;
+				width: 360px; float: left; min-height: 100px;
+			}
+			.column-item {
+				width: 361px;
+				display: block;
+				border-bottom: 1px dashed lightgrey;
+				border-right: 1px dashed lightgrey;
+				border-left: 1px dashed lightgrey;
+				padding: 0.5rem 0.75rem;
+				position: relative;
+			}
+			.column-item:hover {
+				background: #f9f9f9;
+			}
+			.column-item.active {
+				color: #ddd;
+				background: #47a;
+			}
+			.column-item.active:after {
+				position: absolute;
+				right: 10px;
+				top: 14px;
+				display: inline-block;
+				width: 0;
+				height: 0;
+				vertical-align: middle;
+				content: "";
+				border-top: 6px solid transparent;
+				border-left: 6px solid;
+				border-bottom: 6px solid transparent;
+			}
+			.column-item.active a {
+				color: #def;
+			}
+		</style>
 	</head>
 	<body>
-		<div id="app" class="container-fluid">
-			<div class="row">
-				<div class="col-xl-2 col-md-3"><router-list></router-list></div>
-				<div class="col-lg-10 col-md-9"><router-view></router-view></div>
-			</div>
-			<div class="fixed-top-right">
-				<data-alert ref="alert"></data-alert>
-			</div>
+		<div id="app" style="">
+			<index-path-data v-for="data in columns" v-bind:data="data"></index-path-data>
 		</div>
-		<script src="./index/router-list.js"></script>
-		<script src="./index/router-data.js"></script>
-		<script src="./index/router-data-edit.js"></script>
-		<script src="./index/data-field.js"></script>
-		<script src="./index/data-field-adder.js"></script>
-		<script src="./index/data-alert.js"></script>
-		<script src="./index/main.js"></script>
+		<script src="/session.js"></script>
+		<script src="/index-path-data.js"></script>
+		<script src="/index.js"></script>
 	</body>
 </html>

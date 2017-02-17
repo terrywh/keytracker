@@ -28,6 +28,7 @@ func (sh *SessionHandler) StartHandler(s *server.Session) {
 }
 
 func (sh *SessionHandler) RequestHandler(s *server.Session, r *server.Request) {
+	r.K = DataKeyFlat(r.K)
 	if (r.X & 0x01) != 0 { // 数据设置
 		if (r.X & 0x04) != 0 { // 后缀
 			r.K = DataKey(r.K)
@@ -40,11 +41,19 @@ func (sh *SessionHandler) RequestHandler(s *server.Session, r *server.Request) {
 			WatcherNotify(r.K, r.V)
 		}
 	} else if (r.X & 256) != 0 { // 监控
-		WatcherAppend(r.K, s)
+		var v, _ = r.V.(float64)
+
+		if int(v) == 0 {
+			WatcherRemove(r.K, s)
+		} else if int(v) == 1 {
+			DataList(r.K, s, 2, func() {
+				WatcherAppend(r.K, s) // 防止 watcher 和 list 之间空隙时数据的变更
+			})
+		}
 	} else if (r.X & 512) != 0 {
 		DataGet(r.K, s)
 	} else if (r.X & 1024) != 0 {
-		DataList(r.K, s)
+		DataList(r.K, s, 0, nil)
 	}
 }
 

@@ -8,8 +8,8 @@ import (
 	"runtime/pprof"
 	"encoding/json"
 	"github.com/gorilla/websocket"
-
-	"github.com/terrywh/keytracker/server"
+	"github.com/terrywh/keytracker/server"	
+	"strconv"
 )
 
 var router *httprouter.Router
@@ -20,8 +20,9 @@ func init() {
 	router = httprouter.New()
 	router.NotFound = http.FileServer(http.Dir(config.AppPath + "/www"))
 
-	router.GET("/data/:key",  dataGet)
-	router.HEAD("/data/:key", dataList)
+	router.GET("/read/*key", routerRead)
+	router.GET("/list/*key", routerList)
+	router.GET("/some/:limit/*key", routerSome)
 
 	router.GET("/session", sessionGet)
 
@@ -32,21 +33,40 @@ func init() {
 	upgrader = websocket.Upgrader{}
 }
 
-func dataGet(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+func routerRead(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	w.Header().Set("Content-Type", "text/json")
 
-	DataGet(p[0].Value, w)
+	DataGet(DataKeyFlat(p[0].Value), w)
 }
-func dataList(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+func routerList(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	w.Header().Set("Content-Type", "text/json")
 	w.Write([]byte("["))
 	n := 0
-	DataWalk(p[0].Value, func(key string, val interface{}) bool {
+	DataWalk(DataKeyFlat(p[0].Value), func(key string, val interface{}) bool {
 		if n != 0 {
 			w.Write([]byte(","))
 		}
 		DataWrite(w, key, val, 0)
+		n++
 		return true
+	})
+	w.Write([]byte("]"))
+}
+func routerSome(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	w.Header().Set("Content-Type", "text/json")
+	w.Write([]byte("["))
+	n := 0
+	c, _ := strconv.Atoi(p[0].Value)
+	DataWalk(DataKeyFlat(p[1].Value), func(key string, val interface{}) bool {
+		if n != 0 {
+			w.Write([]byte(","))
+		}
+		DataWrite(w, key, val, 0)
+		n++
+		if n < c {
+			return true
+		}
+		return false
 	})
 	w.Write([]byte("]"))
 }
