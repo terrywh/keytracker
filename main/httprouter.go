@@ -30,7 +30,9 @@ func init() {
 	router.GET("/status/memprof", statusMemProfRouter)
 
 
-	upgrader = websocket.Upgrader{}
+	upgrader = websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool { return true },
+	}
 }
 
 func routerRead(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
