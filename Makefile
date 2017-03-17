@@ -9,18 +9,16 @@ SOURCE_FILES=$(wildcard *.go) $(wildcard */*.go)
 
 TARGET=bin/keytracker
 
-.PHONY: vendor test run
+.PHONY: get test run
 
 all: ${TARGET}
 
-${TARGET}: vendor ${SOURCE_FILES}
-	${GOROOT}/bin/go build -ldflags "-X ${PACKAGE}/config.AppVersion=${VERSION}" -o $@ ${PACKAGE}/main
+${TARGET}: ${SOURCE_FILES}
+	GOOS=linux ${GOROOT}/bin/go build -ldflags "-X ${PACKAGE}/config.AppVersion=${VERSION}" -o $@ ${PACKAGE}/main
 
-vendor:
-
-run: vendor
-# 测试状态设置 GOGC 提高内存回收频率
-	GOGC=10 ${GOROOT}/bin/go run -ldflags "-X ${PACKAGE}/config.AppVersion=${VERSION} -X ${PACKAGE}/config.AppPath=/data/godocs/src/${PACKAGE}" ${SOURCE_ENTRY}
-
+get:
+	go get github.com/BurntSushi/toml
+	go get github.com/julienschmidt/httprouter
+	go get github.com/gorilla/websocket
 clean:
 	rm -f ${TARGET}
