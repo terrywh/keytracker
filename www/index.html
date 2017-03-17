@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 	<head>
+		<meta charset="utf-8">
 		<link href="https://lib.baomitu.com/twitter-bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" rel="stylesheet">
 		<link href="https://lib.baomitu.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 		<script src="https://lib.baomitu.com/vue/2.1.10/vue.min.js"></script>
@@ -8,24 +9,49 @@
 
 		<title>数据管理</title>
 		<style>
+			*{
+				box-sizing: border-box;
+				padding: 0;
+				margin: 0;
+			}
 			html,body {
 				height: 100%;
+				overflow: hidden;
+			}
+			.column-panel::-webkit-scrollbar-track
+			{
+				-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+				border-radius: 10px;
+				background-color: #F5F5F5;
+			}
+
+			.column-panel::-webkit-scrollbar
+			{
+				width: 12px;
+				background-color: #F5F5F5;
+			}
+
+			.column-panel::-webkit-scrollbar-thumb
+			{
+				border-radius: 10px;
+				-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+				background-color: #ccc;
 			}
 			#app {
-				overflow: scroll;
+				overflow-y: scroll;
 				height: 100%;
 				width: 100%;
 			}
 			.column {
 				border-top: 1px dashed lightgrey;
-				width: 360px; float: left; min-height: 100px;
+				/*width: 360px; 
+				float: left;*/ 
+				/*min-height: 100px;*/
 			}
 			.column-item {
 				width: 361px;
 				display: block;
-				border-bottom: 1px dashed lightgrey;
-				border-right: 1px dashed lightgrey;
-				border-left: 1px dashed lightgrey;
+				border-bottom: 1px dashed lightgrey;				
 				padding: 0.5rem 0.75rem;
 				position: relative;
 			}
@@ -52,14 +78,34 @@
 			.column-item.active a {
 				color: #def;
 			}
+			.column-panel{
+				float: left;
+				border-right: 1px dashed lightgrey;
+				width: 361px;
+				height: 100%;
+				position: relative;
+				overflow-y:auto;
+				overflow-x: hidden;
+			}
+			.column{
+				/*width: 361px;*/
+				/*position:relative;*/
+				
+			}
+			.column.autoTop{
+				position: relative;
+				top: 50%;
+				transform: translateY(-50%);
+			}
 		</style>
 	</head>
 	<body>
 		<div id="app" style="">
 			<index-path-data v-for="data in columns" v-bind:data="data"></index-path-data>
 		</div>
-		<script src="/session.js"></script>
-		<script src="/index-path-data.js"></script>
-		<script src="/index.js"></script>
+		<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+		<script src="session.js"></script>
+		<script src="index-path-data.js"></script>
+		<script src="index.js"></script>
 	</body>
 </html>

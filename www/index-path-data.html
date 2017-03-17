@@ -1,16 +1,18 @@
-<div class="column">
-	<div class="column-item"
-		v-for="item in data" v-bind:class="{'active': item.k == $app.path.substr(0, item.k.length)}">
-			<a v-bind:href="'#' + item.k" class="mb-1" v-on:click.prevent="$app.navigate(item.k)">{{segment(item.k)}}</a>
-			<small>({{type(item.v)}})</small>
-			<small>
-				&nbsp;=&nbsp;<span v-if="type(item.v) == '文本'" class="text-danger">"{{item.v}}"</span>
-				<span v-if="type(item.v) == '数值'" class="text-info">{{item.v}}</span>
-				<span v-if="type(item.v) == '布尔'" class="text-success">{{item.v}}</span>
-				<span v-if="type(item.v) == '对象'" class="text-warning">null</span>
-			</small>
-	</div>
-	<div class="column-item" v-if="data.length === 0">
-		没有更深层级的数据项！
+<div class="column-panel">
+	<div class="column" v-bind:class="">
+		<div class="column-item"
+			v-for="item in data" v-bind:class="{'active': item.k == $app.path.substr(0, item.k.length)}">
+				<a v-bind:href="'#' + item.k" class="mb-1" v-on:click.prevent="$app.navigate(item.k)">{{segment(item.k)}}</a>
+				<small>({{type(item.v)}})</small>
+				<small>
+					&nbsp;=&nbsp;<span v-if="type(item.v) == '文本'" class="text-danger">"{{item.v}}"</span>
+					<span v-if="type(item.v) == '数值'" class="text-info">{{item.v}}</span>
+					<span v-if="type(item.v) == '布尔'" class="text-success">{{item.v}}</span>
+					<span v-if="type(item.v) == '对象'" class="text-warning">null</span>
+				</small>
+		</div>
+		<div class="column-item" v-if="data.length === 0">
+			没有更深层级的数据项！
+		</div>
 	</div>
 </div>
