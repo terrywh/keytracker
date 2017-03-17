@@ -43,27 +43,22 @@
 		})
 	};
 	session.ondata = function(data) {
-
-		
 		sortData.push(data);
 		var sortDataLen = sortData.length;
 		clearTimeout(sortTimeout);
 		sortTimeout = setTimeout(function() {
 			var item, index, sorted = {};
-
 			while(item = sortData.pop()) {
-
 				index = item.k.split("/").length - 2;
 				app.columns[index].push(item);
 				sorted[index] = true;
-
 			}
 			for(index in sorted) {
 				app.columns[parseInt(index)].sort(function(a, b) { // Go map 便利起始位置随机
 					return a.k < b.k ? -1 : a.k == b.k ? 0 : 1;
 				});
 			}
-			autoPosition();
+			setTimeout(autoPosition, 50);
 		}, 200);
 	};
 	Vue.mixin({
