@@ -54,6 +54,8 @@ func (sh *SessionHandler) RequestHandler(s *server.Session, r *server.Request) {
 		DataGet(r.K, s)
 	} else if (r.X & 1024) != 0 {
 		DataList(r.K, s, 0, nil)
+	} else { // 删除数据
+		DataDel(r.K)
 	}
 }
 

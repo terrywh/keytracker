@@ -55,6 +55,10 @@ func DataSet(key string, val interface{}) bool {
 	}
 }
 
+func DataDel(key string) bool {
+	return dataStore.Remove(key) != nil
+}
+
 func DataGet(key string, s io.Writer) {
 	dataStoreL.RLock()
 	defer dataStoreL.RUnlock()
