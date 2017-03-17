@@ -72,8 +72,8 @@
 		};
 	}
 	var optionDefaults = {
-		"addr": "127.0.0.1",
-		"port": 7472,
+		"addr": location.hostname,
+		"port": parseInt(location.port) || 7472,
 	};
 	function createSession(options) {
 		options = Object.assign({}, optionDefaults, options);
