@@ -44,9 +44,6 @@
 			}
 			.column {
 				border-top: 1px dashed lightgrey;
-				/*width: 360px; 
-				float: left;*/ 
-				/*min-height: 100px;*/
 			}
 			.column-item {
 				width: 361px;
@@ -87,12 +84,7 @@
 				overflow-y:auto;
 				overflow-x: hidden;
 			}
-			.column{
-				/*width: 361px;*/
-				/*position:relative;*/
-				
-			}
-			.column.autoTop{
+			.column.auto-top{
 				position: relative;
 				top: 50%;
 				transform: translateY(-50%);
@@ -103,7 +95,6 @@
 		<div id="app" style="">
 			<index-path-data v-for="data in columns" v-bind:data="data"></index-path-data>
 		</div>
-		<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 		<script src="session.js"></script>
 		<script src="index-path-data.js"></script>
 		<script src="index.js"></script>

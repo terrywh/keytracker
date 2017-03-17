@@ -34,20 +34,14 @@
 	});
 	var sortTimeout, sortData = [];
 	var autoPosition = function(){
-			var winHeight = $(window).height();
-			var $column = $('#app').find('.column');
-			
-			$column.each(function(k,v){
-
-				var cpHeight = $(v).height();
-
-				if(cpHeight<winHeight){
-					$(v).addClass('autoTop');
-				}else{
-					$(v).removeClass('autoTop');
-				}
-			})
-		};
+		document.getElementById('app').querySelectorAll('.column').forEach(function(el){
+			if(el.offsetHeight<window.innerHeight){
+				el.classList.add('auto-top');
+			}else{
+				el.classList.remove('auto-top');
+			}
+		})
+	};
 	session.ondata = function(data) {
 
 		
