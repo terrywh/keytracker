@@ -1,14 +1,9 @@
 (function(exports) {
-	var session = createSession({"addr":"10.20.6.51","port":7472});
-	// session.set('/notify/wang/key_','aaa',7)
+	var session = createSession();
 	var app = new Vue({
 		el: "#app",
 		created: function() {
 			this.navigate(this.path);
-			// var self = this;
-			// window.onhashchange = function(e) {
-			// 	self.path = location.hash.substr(1);
-			// };
 		},
 		data: {
 			columns: [],
@@ -17,9 +12,6 @@
 		methods: {
 			navigate: function(path) {
 				this.path = path;
-
-				// this.columns = [];
-				// console.log(this.columns,0)
 				location.hash = "#" + path;
 				path = path.split("/");
 				var i;
