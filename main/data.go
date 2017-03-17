@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"path"
+	"crypto/rand"
 )
 
 var dataStore trie.Trie
@@ -17,9 +18,16 @@ func init() {
 	dataStore = trie.NewTrie()
 	dataStoreL = &sync.RWMutex{}
 }
-var keyID int32
+var keyID int64
 func DataKey(key string) string {
-	return fmt.Sprintf("%s%010d", key, atomic.AddInt32(&keyID, 1))
+	buffer := make([]byte, 5)
+	_, err := rand.Read(buffer)
+	backup := atomic.AddInt64(&keyID, 1)
+	if err != nil {
+		return fmt.Sprintf("%s%010x", key, backup)
+	}else{
+		return fmt.Sprintf("%s%02x", key, buffer)
+	}
 }
 func DataKeyFlat(k string) string {
 	k = path.Clean(k)
