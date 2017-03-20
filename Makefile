@@ -1,6 +1,6 @@
 
 PACKAGE=github.com/terrywh/keytracker
-VERSION=0.2.4
+VERSION=0.2.5
 
 VENDORS=${GOPATH}/src/BurntSushi/toml ${GOPATH}/src/julienschmidt/httprouter ${GOPATH}/src/gorilla/websocket
 

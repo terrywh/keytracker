@@ -20,11 +20,11 @@ func init() {
 }
 var keyID int64
 func DataKey(key string) string {
-	buffer := make([]byte, 5)
+	buffer := make([]byte, 4)
 	_, err := rand.Read(buffer)
 	backup := atomic.AddInt64(&keyID, 1)
 	if err != nil {
-		return fmt.Sprintf("%s%010x", key, backup)
+		return fmt.Sprintf("%s%08x", key, backup)
 	}else{
 		return fmt.Sprintf("%s%02x", key, buffer)
 	}
