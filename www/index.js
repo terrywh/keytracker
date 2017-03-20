@@ -54,7 +54,8 @@
 				sorted[index] = true;
 			}
 			for(index in sorted) {
-				app.columns[parseInt(index)].sort(function(a, b) { // Go map 便利起始位置随机
+				app.columns[parseInt(index)].sort(function(a, b) {
+					// 由于 Go map 遍历会乱序，这里单独对 key 进行排序
 					return a.k < b.k ? -1 : a.k == b.k ? 0 : 1;
 				});
 			}
