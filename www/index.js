@@ -33,15 +33,6 @@
 		}
 	});
 	var sortTimeout, sortData = [];
-	var autoPosition = function(){
-		document.getElementById('app').querySelectorAll('.column').forEach(function(el){
-			if(el.offsetHeight<window.innerHeight){
-				el.classList.add('auto-top');
-			}else{
-				el.classList.remove('auto-top');
-			}
-		})
-	};
 	session.ondata = function(data) {
 		sortData.push(data);
 		var sortDataLen = sortData.length;
@@ -59,7 +50,6 @@
 					return a.k < b.k ? -1 : a.k == b.k ? 0 : 1;
 				});
 			}
-			setTimeout(autoPosition, 50);
 		}, 200);
 	};
 	Vue.mixin({

@@ -72,6 +72,6 @@ func WatcherNotify(key string, val interface{}) {
 		return
 	}
 	for e:=watcher.Front(); e!=nil; e=e.Next() {
-		DataWrite(e.Value.(*server.Session), key, val, 0)
+		DataWrite(e.Value.(*server.Session), key, val, 2)
 	}
 }
