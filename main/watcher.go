@@ -25,7 +25,6 @@ func WatcherAppend(key string, s *server.Session) {
 		watchers[key] = watcher
 	}
 	watcher.PushBack(s)
-	s.AddTag(Tag{key, true})
 
 	log.Println("[info] watcher append:", key)
 }
@@ -49,11 +48,8 @@ func WatcherRemove(key string, s *server.Session) {
 }
 
 func WatcherCleanup(s *server.Session) {
-	s.WalkTag(func(tag interface{}) bool {
-		_tag := tag.(Tag)
-		if _tag.IsWatcher {
-			WatcherRemove(_tag.Key, s)
-		}
+	s.WalkWatcher(func(key string) bool {
+		WatcherRemove(key, s)
 		return true
 	})
 }

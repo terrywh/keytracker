@@ -102,11 +102,8 @@ func DataCleanup(s *server.Session) {
 	dataStoreL.Lock()
 	defer dataStoreL.Unlock()
 
-	s.WalkTag(func(tag interface{}) bool {
-		_tag := tag.(Tag)
-		if !_tag.IsWatcher {
-			dataStore.Remove(_tag.Key)
-		}
+	s.WalkElement(func(key string) bool {
+		dataStore.Remove(key)
 		return true
 	})
 }

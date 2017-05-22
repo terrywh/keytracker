@@ -8,7 +8,6 @@ import (
 	"net"
 	"github.com/gorilla/websocket"
 	"errors"
-	"container/list"
 )
 
 type Request struct {
@@ -76,7 +75,8 @@ type Session struct {
 	conn io.ReadWriteCloser
 	lock *sync.RWMutex
 	RemoteAddr string
-	tags *list.List
+	watcher map[string]bool
+	element map[string]bool
 }
 
 func NewSession(conn io.ReadWriteCloser, addr string) *Session {
@@ -84,7 +84,8 @@ func NewSession(conn io.ReadWriteCloser, addr string) *Session {
 		conn: conn,
 		lock: &sync.RWMutex{},
 		RemoteAddr: addr,
-		tags: list.New(),
+		watcher: make(map[string]bool),
+		element: make(map[string]bool),
 	}
 }
 
@@ -110,19 +111,37 @@ func (s *Session) Write(b []byte) (int, error) {
 	return s.conn.Write(b)
 }
 
-func (s *Session) AddTag(tag interface{}) {
+func (s *Session) AddWatcher(key string) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
-	s.tags.PushBack(tag)
+	s.watcher[key] = true
 }
 
-func (s *Session) WalkTag(cb func(interface{}) bool) {
+func (s *Session) AddElement(key string) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	s.element[key] = true
+}
+
+func (s *Session) WalkWatcher(cb func(string) bool) {
 	s.lock.RLock()
 	defer s.lock.RUnlock()
 
-	for tag := s.tags.Front(); tag != nil; tag = tag.Next() {
-		if !cb(tag.Value) {
+	for k, _ := range s.watcher {
+		if !cb(k) {
+			break
+		}
+	}
+}
+
+func (s *Session) WalkElement(cb func(string) bool) {
+	s.lock.RLock()
+	defer s.lock.RUnlock()
+
+	for k, _ := range s.element {
+		if !cb(k) {
 			break
 		}
 	}

@@ -35,7 +35,7 @@ func (sh *SessionHandler) RequestHandler(s *server.Session, r *server.Request) {
 			DataWrite(s, r.K, r.V, /* y=*/1) // y=1 后缀推送
 		}
 		if (r.X & 0x02) == 0 {
-			s.AddTag(Tag{r.K, false}) // 临时数据需要在 Close 时删除
+			s.AddElement(r.K) // 临时数据需要在 Close 时删除
 		}
 		if DataSet(r.K, r.V) { // 数据发生变更
 			WatcherNotify(r.K, r.V)
@@ -48,6 +48,7 @@ func (sh *SessionHandler) RequestHandler(s *server.Session, r *server.Request) {
 		} else if int(v) == 1 {
 			DataList(r.K, s, 2, func() {
 				WatcherAppend(r.K, s) // 防止 watcher 和 list 之间空隙时数据的变更
+				s.AddWatcher(r.K)
 			})
 		}
 	} else if (r.X & 512) != 0 {
