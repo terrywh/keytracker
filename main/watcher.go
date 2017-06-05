@@ -54,13 +54,13 @@ func WatcherCleanup(s *server.Session) {
 	})
 }
 
-func WatcherNotify(key string, val interface{}) {
+func WatcherNotify(key string, val interface{}, top string) {
 	// /a/b/c => /a/b
-	p := strings.LastIndexByte(key, byte('/'))
+	p := strings.LastIndexByte(top, byte('/'))
 	if p == -1 {
 		return
 	}
-	top := key[0:p]
+	top = top[0:p]
 	watchersL.RLock()
 	defer watchersL.RUnlock()
 	watcher,ok := watchers[top]
@@ -70,4 +70,6 @@ func WatcherNotify(key string, val interface{}) {
 	for e:=watcher.Front(); e!=nil; e=e.Next() {
 		DataWrite(e.Value.(*server.Session), key, val, 2)
 	}
+	// 递归通知
+	WatcherNotify(key, val, top)
 }
