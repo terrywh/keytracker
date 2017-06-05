@@ -38,7 +38,7 @@ func (sh *SessionHandler) RequestHandler(s *server.Session, r *server.Request) {
 			s.AddElement(r.K) // 临时数据需要在 Close 时删除
 		}
 		if DataSet(r.K, r.V) { // 数据发生变更
-			WatcherNotify(r.K, r.V, r.K)
+			WatcherNotify(r.K, r.V, r.K, /* y */2)
 		}
 	} else if (r.X & 256) != 0 { // 监控
 		var v, _ = r.V.(float64)
