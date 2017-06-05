@@ -7,6 +7,10 @@ import (
 	"strings"
 	"log"
 )
+type WatcherType struct {
+	sess *server.Session
+	r     bool
+}
 var watchers map[string]*list.List
 var watchersL *sync.RWMutex
 
@@ -15,7 +19,7 @@ func init() {
 	watchersL = &sync.RWMutex{}
 }
 
-func WatcherAppend(key string, s *server.Session) {
+func WatcherAppend(key string, s *server.Session, r bool) {
 	watchersL.Lock()
 	defer watchersL.Unlock()
 
@@ -24,7 +28,7 @@ func WatcherAppend(key string, s *server.Session) {
 		watcher = list.New()
 		watchers[key] = watcher
 	}
-	watcher.PushBack(s)
+	watcher.PushBack(WatcherType{s, r})
 
 	log.Println("[info] watcher append:", key)
 }
@@ -37,7 +41,7 @@ func WatcherRemove(key string, s *server.Session) {
 		return
 	}
 	for e:=watcher.Front(); e!=nil; e=e.Next() {
-		if e.Value.(*server.Session) == s {
+		if e.Value.(WatcherType).sess == s {
 			watcher.Remove(e)
 		}
 	}
@@ -66,9 +70,12 @@ func WatcherNotify(key string, val interface{}, top string, y int) {
 	watcher,ok := watchers[top]
 	if ok {
 		for e:=watcher.Front(); e!=nil; e=e.Next() {
-			DataWrite(e.Value.(*server.Session), key, val, y)
+			wt := e.Value.(WatcherType)
+			if y == 0x02 || wt.r { // 顶级 key 或支持递归
+				DataWrite(wt.sess, key, val, y)
+			}
 		}
 	}
 	// 递归通知
-	WatcherNotify(key, val, top, y + 4)
+	WatcherNotify(key, val, top, y | 0x04)
 }

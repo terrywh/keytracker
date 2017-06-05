@@ -40,16 +40,15 @@ func (sh *SessionHandler) RequestHandler(s *server.Session, r *server.Request) {
 		if DataSet(r.K, r.V) { // 数据发生变更
 			WatcherNotify(r.K, r.V, r.K, /* y */2)
 		}
-	} else if (r.X & 256) != 0 { // 监控
+	} else if (r.X & 256) != 0 || (r.X & 2048) != 0 { // 监控
 		var v, _ = r.V.(float64)
 
 		if int(v) == 0 {
 			WatcherRemove(r.K, s)
 		} else if int(v) == 1 {
-			DataList(r.K, s, 2, func() {
-				WatcherAppend(r.K, s) // 防止 watcher 和 list 之间空隙时数据的变更
-				s.AddWatcher(r.K)
-			})
+			WatcherAppend(r.K, s, (r.X & 2048) != 0) // 2048 为递归监控
+			s.AddWatcher(r.K)
+			DataList(r.K, s, 2, nil)
 		}
 	} else if (r.X & 512) != 0 {
 		DataGet(r.K, s)
