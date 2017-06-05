@@ -30,7 +30,6 @@ func (sh *SessionHandler) StartHandler(s *server.Session) {
 func (sh *SessionHandler) RequestHandler(s *server.Session, r *server.Request) {
 	dataStoreL.Lock()
 	defer dataStoreL.Unlock()
-
 	r.K = DataKeyFlat(r.K)
 	if (r.X & 0x01) != 0 { // 数据设置
 		if (r.X & 0x04) != 0 { // 后缀
@@ -45,7 +44,6 @@ func (sh *SessionHandler) RequestHandler(s *server.Session, r *server.Request) {
 		}
 	} else if (r.X & 256) != 0 || (r.X & 2048) != 0 { // 监控
 		var v, _ = r.V.(float64)
-
 		if int(v) == 0 {
 			WatcherRemove(r.K, s)
 		} else if int(v) == 1 {
@@ -64,8 +62,12 @@ func (sh *SessionHandler) RequestHandler(s *server.Session, r *server.Request) {
 }
 
 func (sh *SessionHandler) CloseHandler(s *server.Session) {
+	dataStoreL.Lock()
+	defer dataStoreL.Unlock()
+
 	log.Println("[info] session closed:", s.RemoteAddr)
 	atomic.AddInt32(&sessions, -1)
+	
 	WatcherCleanup(s)
 	DataCleanup(s)
 }

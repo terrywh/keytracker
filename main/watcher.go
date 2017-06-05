@@ -16,13 +16,9 @@ var watchersL *sync.RWMutex
 
 func init() {
 	watchers = make(map[string]*list.List)
-	watchersL = &sync.RWMutex{}
 }
 
 func WatcherAppend(key string, s *server.Session, r bool) {
-	watchersL.Lock()
-	defer watchersL.Unlock()
-
 	watcher,ok := watchers[key]
 	if !ok {
 		watcher = list.New()
@@ -34,8 +30,6 @@ func WatcherAppend(key string, s *server.Session, r bool) {
 }
 
 func WatcherRemove(key string, s *server.Session) {
-	watchersL.Lock()
-	defer watchersL.Unlock()
 	watcher,ok := watchers[key]
 	if !ok {
 		return
@@ -59,9 +53,7 @@ func WatcherCleanup(s *server.Session) {
 }
 
 func WatcherNotify(key string, val interface{}, top string, y int) {
-	// /a/b/c => /a/b
-	watchersL.RLock()
-	defer watchersL.RUnlock()
+	// /a/b/c => /a/bmake
 	watcher,ok := watchers[top]
 	if ok {
 		for e:=watcher.Front(); e!=nil; e=e.Next() {

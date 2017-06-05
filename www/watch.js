@@ -28,6 +28,8 @@
 			var self = this;
 			this.$session = createSession();
 			this.$session.ondata = function(data) {
+				if(data.v === null) return;
+				
 				self.dataSet({
 					"path": data.k,
 					"value": data.v,
