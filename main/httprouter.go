@@ -38,7 +38,7 @@ func init() {
 func routerRead(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	w.Header().Set("Content-Type", "text/json")
 
-	DataGet(DataKeyFlat(p[0].Value), w)
+	DataGet(DataKeyFlat(p[0].Value), w, 0)
 }
 func routerList(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	w.Header().Set("Content-Type", "text/json")

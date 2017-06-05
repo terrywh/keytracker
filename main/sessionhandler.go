@@ -28,6 +28,9 @@ func (sh *SessionHandler) StartHandler(s *server.Session) {
 }
 
 func (sh *SessionHandler) RequestHandler(s *server.Session, r *server.Request) {
+	dataStoreL.Lock()
+	defer dataStoreL.Unlock()
+
 	r.K = DataKeyFlat(r.K)
 	if (r.X & 0x01) != 0 { // 数据设置
 		if (r.X & 0x04) != 0 { // 后缀
@@ -48,10 +51,11 @@ func (sh *SessionHandler) RequestHandler(s *server.Session, r *server.Request) {
 		} else if int(v) == 1 {
 			WatcherAppend(r.K, s, (r.X & 2048) != 0) // 2048 为递归监控
 			s.AddWatcher(r.K)
-			DataList(r.K, s, 2, nil)
+			DataGet(r.K, s, 0x02 + 0x08)
+			DataList(r.K, s, 0x02, nil)
 		}
 	} else if (r.X & 512) != 0 {
-		DataGet(r.K, s)
+		DataGet(r.K, s, 0)
 	} else if (r.X & 1024) != 0 {
 		DataList(r.K, s, 0, nil)
 	} else { // 删除数据

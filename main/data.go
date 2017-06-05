@@ -41,8 +41,6 @@ func DataKeyFlat(k string) string {
 }
 
 func DataSet(key string, val interface{}) bool {
-	dataStoreL.Lock()
-	defer dataStoreL.Unlock()
 	n := dataStore.Get(key)
 	if n == nil && val != nil {
 		dataStore.Create(key).SetValue(val)
@@ -61,20 +59,16 @@ func DataDel(key string) bool {
 	return dataStore.Remove(key) != nil
 }
 
-func DataGet(key string, s io.Writer) {
-	dataStoreL.RLock()
-	defer dataStoreL.RUnlock()
+func DataGet(key string, s io.Writer, y int) {
 	n := dataStore.Get(key)
 	if n == nil {
-		DataWrite(s, key, nil, 0)
+		DataWrite(s, key, nil, y)
 	}else{
-		DataWrite(s, key, n.GetValue(), 0)
+		DataWrite(s, key, n.GetValue(), y)
 	}
 }
 
 func DataList(key string, s io.Writer, y int, cb func()) {
-	dataStoreL.RLock()
-	defer dataStoreL.RUnlock()
 	n := dataStore.Get(key)
 	if n != nil {
 		n.Walk(func(c *trie.Node) bool {
@@ -88,8 +82,6 @@ func DataList(key string, s io.Writer, y int, cb func()) {
 }
 
 func DataWalk(key string, cb func (key string, val interface{}) bool) {
-	dataStoreL.RLock()
-	defer dataStoreL.RUnlock()
 	n := dataStore.Get(key)
 	if n != nil {
 		n.Walk(func(c *trie.Node) bool {
@@ -99,9 +91,6 @@ func DataWalk(key string, cb func (key string, val interface{}) bool) {
 }
 
 func DataCleanup(s *server.Session) {
-	dataStoreL.Lock()
-	defer dataStoreL.Unlock()
-
 	s.WalkElement(func(key string) bool {
 		dataStore.Remove(key)
 		return true
