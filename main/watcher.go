@@ -9,7 +9,7 @@ import (
 )
 type WatcherType struct {
 	sess *server.Session
-	r     bool
+	x     int
 }
 var watchers map[string]*list.List
 var watchersL *sync.RWMutex
@@ -18,13 +18,13 @@ func init() {
 	watchers = make(map[string]*list.List)
 }
 
-func WatcherAppend(key string, s *server.Session, r bool) {
+func WatcherAppend(key string, s *server.Session, x int) {
 	watcher,ok := watchers[key]
 	if !ok {
 		watcher = list.New()
 		watchers[key] = watcher
 	}
-	watcher.PushBack(WatcherType{s, r})
+	watcher.PushBack(WatcherType{s, x})
 
 	log.Println("[info] watcher append:", key)
 }
@@ -52,21 +52,29 @@ func WatcherCleanup(s *server.Session) {
 	})
 }
 
-func WatcherNotify(key string, val interface{}, top string, y int) {
+func WatcherNotify(key string, val interface{}) {
 	// /a/b/c => /a/bmake
-	watcher,ok := watchers[top]
+	watcher,ok := watchers[key]
 	if ok {
 		for e:=watcher.Front(); e!=nil; e=e.Next() {
 			wt := e.Value.(WatcherType)
-			if y == 0x02 || wt.r { // 顶级 key 或支持递归
-				DataWrite(wt.sess, key, val, y)
+			if (wt.x & 0x01) != 0x00 { // 单项监控
+				DataWrite(wt.sess, key, val, 0x02)
 			}
 		}
 	}
-	// 递归通知
-	p := strings.LastIndexByte(top, byte('/'))
+	// 通知上级 key
+	p := strings.LastIndexByte(key, byte('/'))
 	if p > -1 {
-		top = top[0:p]
-		WatcherNotify(key, val, top, y | 0x04)
+		top := key[0:p]
+		watcher,ok := watchers[top]
+		if ok {
+			for e:=watcher.Front(); e!=nil; e=e.Next() {
+				wt := e.Value.(WatcherType)
+				if (wt.x & 0x01) == 0x00  { // 子集监控
+					DataWrite(wt.sess, key, val, 0x02)
+				}
+			}
+		}
 	}
 }

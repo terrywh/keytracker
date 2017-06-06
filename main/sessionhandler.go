@@ -31,7 +31,23 @@ func (sh *SessionHandler) RequestHandler(s *server.Session, r *server.Request) {
 	dataStoreL.Lock()
 	defer dataStoreL.Unlock()
 	r.K = DataKeyFlat(r.K)
-	if (r.X & 0x01) != 0 { // 数据设置
+	if r.X >= 1024 {
+		DataList(r.K, s, 0, nil)
+	}else if r.X >= 512 {
+		DataGet(r.K, s, 0)
+	}else if r.X >= 256 {
+		var v, _ = r.V.(float64)
+		if int(v) == 0 {
+			WatcherRemove(r.K, s)
+			return;
+		}
+		WatcherAppend(r.K, s, r.X)
+		if (r.X & 0x01) != 0x00 {
+			DataGet(r.K, s, 0x02)
+		} else {
+			DataList(r.K, s, 0x02, nil)
+		}
+	}else if r.X >= 1 {
 		if (r.X & 0x04) != 0 { // 后缀
 			r.K = DataKey(r.K)
 			DataWrite(s, r.K, r.V, /* y=*/1) // y=1 后缀推送
@@ -40,23 +56,9 @@ func (sh *SessionHandler) RequestHandler(s *server.Session, r *server.Request) {
 			s.AddElement(r.K) // 临时数据需要在 Close 时删除
 		}
 		if DataSet(r.K, r.V) { // 数据发生变更
-			WatcherNotify(r.K, r.V, r.K, /* y */2)
+			WatcherNotify(r.K, r.V)
 		}
-	} else if (r.X & 256) != 0 || (r.X & 2048) != 0 { // 监控
-		var v, _ = r.V.(float64)
-		if int(v) == 0 {
-			WatcherRemove(r.K, s)
-		} else if int(v) == 1 {
-			WatcherAppend(r.K, s, (r.X & 2048) != 0) // 2048 为递归监控
-			s.AddWatcher(r.K)
-			DataGet(r.K, s, 0x02 + 0x08)
-			DataList(r.K, s, 0x02, nil)
-		}
-	} else if (r.X & 512) != 0 {
-		DataGet(r.K, s, 0)
-	} else if (r.X & 1024) != 0 {
-		DataList(r.K, s, 0, nil)
-	} else { // 删除数据
+	}else{ // 删除数据
 		DataDel(r.K)
 	}
 }
