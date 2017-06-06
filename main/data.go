@@ -4,11 +4,12 @@ import (
 	"github.com/terrywh/keytracker/trie"
 	"github.com/terrywh/keytracker/server"
 	"sync/atomic"
+	"encoding/binary"
 	"sync"
 	"fmt"
 	"io"
 	"path"
-	"crypto/rand"
+	"time"
 )
 
 var dataStore trie.Trie
@@ -18,18 +19,16 @@ func init() {
 	dataStore = trie.NewTrie()
 	dataStoreL = &sync.RWMutex{}
 }
-var keyID uint32
+var keyIncr uint32
 func DataKey(key string) string {
-	buffer := make([]byte, 4)
-	_, err := rand.Read(buffer)
-	backup := atomic.AddUint32(&keyID, 1)
-	// 防止过大
-	atomic.CompareAndSwapUint32(&keyID, 0x99999999, 0x00000001)
-	if err != nil {
-		return fmt.Sprintf("%s%08x", key, backup)
-	}else{
-		return fmt.Sprintf("%s%02x", key, buffer)
-	}
+	buffer := make([]byte, 6)
+	var now uint32
+	var inc uint16
+	inc = uint16(atomic.AddUint32(&keyIncr, 1))
+	now = uint32(time.Now().Unix())
+	binary.LittleEndian.PutUint32(buffer[0:4], now)
+	binary.LittleEndian.PutUint16(buffer[4:6], inc)
+	return fmt.Sprintf("%s%02x", key, buffer)
 }
 func DataKeyFlat(k string) string {
 	k = path.Clean(k)
