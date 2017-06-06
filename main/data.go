@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"io"
 	"path"
-//	"crypto/rand"
+	"crypto/rand"
 )
 
 var dataStore trie.Trie
@@ -20,16 +20,16 @@ func init() {
 }
 var keyID uint32
 func DataKey(key string) string {
-	// buffer := make([]byte, 4)
-	// _, err := rand.Read(buffer)
+	buffer := make([]byte, 4)
+	_, err := rand.Read(buffer)
 	backup := atomic.AddUint32(&keyID, 1)
 	// 防止过大
 	atomic.CompareAndSwapUint32(&keyID, 0x99999999, 0x00000001)
-	// if err != nil {
-	return fmt.Sprintf("%s%08x", key, backup)
-	// }else{
-	// 	return fmt.Sprintf("%s%02x", key, buffer)
-	// }
+	if err != nil {
+		return fmt.Sprintf("%s%08x", key, backup)
+	}else{
+		return fmt.Sprintf("%s%02x", key, buffer)
+	}
 }
 func DataKeyFlat(k string) string {
 	k = path.Clean(k)
@@ -42,14 +42,14 @@ func DataKeyFlat(k string) string {
 
 func DataSet(key string, val interface{}) bool {
 	n := dataStore.Get(key)
-	if n == nil && val != nil {
+	if n == nil && val != nil { // 新创建
 		dataStore.Create(key).SetValue(val)
 		return true // change!
-	} else if n == nil && val == nil {
+	} else if n == nil && val == nil { // 未变更
 		return false
-	} else if n != nil && val != nil {
+	} else if n != nil && val != nil { // 修改
 		return n.SetValue(val)
-	} else /*if n!= nil && val == nil */ {
+	} else /*if n!= nil && val == nil */ { // 删除
 		dataStore.Remove(key)
 		return true
 	}
