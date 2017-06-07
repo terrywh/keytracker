@@ -19,17 +19,25 @@ func main() {
 	}
 	go pprofSvr.ListenAndServe()
 
-	server.ListenAndServe(config.NodeServerAddr, handler, router)
+	go server.ListenAndServe(config.NodeServerAddr, handler, router)
 
 	c := make(chan os.Signal, 1)
-	signal.Notify(c, syscall.SIGUSR2)
+	signal.Notify(c, syscall.SIGUSR2, syscall.SIGINT, syscall.SIGTERM)
 	config.RotateLogger()
 	var s os.Signal
+SIGNAL_WAITING:
 	for {
 		s = <-c
-		if s == syscall.SIGUSR2 {
+		switch s {
+			case syscall.SIGUSR2:
 			fmt.Fprintln(os.Stderr, "[info] keytracker rotate log file.")
 			config.RotateLogger()
+		case syscall.SIGINT:
+			fallthrough
+		case syscall.SIGTERM:
+			break SIGNAL_WAITING
 		}
 	}
+	fmt.Println("exiting ...")
+	dataStoreF.Close()
 }

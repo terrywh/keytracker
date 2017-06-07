@@ -1,34 +1,52 @@
 package main
 
 import (
+	"github.com/terrywh/keytracker/config"
 	"github.com/terrywh/keytracker/trie"
 	"github.com/terrywh/keytracker/server"
 	"sync/atomic"
-	"encoding/binary"
 	"sync"
 	"fmt"
 	"io"
+	"io/ioutil"
+	"os"
 	"path"
-	"time"
+	"strconv"
 )
 
 var dataStore trie.Trie
 var dataStoreL *sync.RWMutex
-
+var dataStoreF *os.File
+var dataStoreK uint32
 func init() {
 	dataStore = trie.NewTrie()
 	dataStoreL = &sync.RWMutex{}
+	var err error
+	dataStoreF, err = os.OpenFile(config.AppPath + "/etc/key.inc", os.O_RDWR | os.O_CREATE, 0666)
+	if err != nil {
+		panic("failed to open key.inc file" + err.Error())
+	}
+	var tmp []byte
+	tmp, err = ioutil.ReadAll(dataStoreF)
+	if err != nil {
+		panic("failed to read key.inc file" + err.Error())
+	}
+	var tpk uint64
+	tpk, err = strconv.ParseUint(string(tmp), 16, 32)
+	if err != nil {
+		tpk = 0
+	}
+	// 防止意外写入同步问题，适当跳过部分数值
+	dataStoreK = uint32(tpk + 100)
 }
-var keyIncr uint32
+
 func DataKey(key string) string {
-	buffer := make([]byte, 6)
-	var now uint32
-	var inc uint16
-	inc = uint16(atomic.AddUint32(&keyIncr, 1))
-	now = uint32(time.Now().Unix())
-	binary.LittleEndian.PutUint32(buffer[0:4], now)
-	binary.LittleEndian.PutUint16(buffer[4:6], inc)
-	return fmt.Sprintf("%s%02x", key, buffer)
+	var inc uint32
+	inc = atomic.AddUint32(&dataStoreK, 1)
+	dataStoreF.Seek(0, 0)
+	fmt.Fprintf(dataStoreF, "%08x", inc)
+	// 不做 flush 
+	return fmt.Sprintf("%s%08x", key, inc)
 }
 func DataKeyFlat(k string) string {
 	k = path.Clean(k)

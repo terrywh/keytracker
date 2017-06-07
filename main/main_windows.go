@@ -5,13 +5,15 @@ import (
 	"github.com/terrywh/keytracker/server"
 	"os"
 	"os/signal"
+	"fmt"
 )
 
 func main() {
-
-	server.ListenAndServe(config.NodeServerAddr, handler, router)
-
+	go server.ListenAndServe(config.NodeServerAddr, handler, router)
+	fmt.Println("wait for signal")
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	<-c
+	fmt.Println("exiting ...")
+	dataStoreF.Close()
 }

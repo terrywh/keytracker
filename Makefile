@@ -7,14 +7,18 @@ VENDORS=${GOPATH}/src/BurntSushi/toml ${GOPATH}/src/julienschmidt/httprouter ${G
 SOURCE_ENTRY=$(wildcard main/*.go)
 SOURCE_FILES=$(wildcard *.go) $(wildcard */*.go)
 
-TARGET=bin/keytracker
+TARGET_LINUX=bin/keytracker
+TARGET_WIN32=bin/keytracker.exe
 
-.PHONY: get test run
+.PHONY: get test run win32
 
-all: ${TARGET}
+all: ${TARGET_LINUX}
 
-${TARGET}: ${SOURCE_FILES}
+${TARGET_LINUX}: ${SOURCE_FILES}
 	GOOS=linux ${GOROOT}/bin/go build -ldflags "-X ${PACKAGE}/config.AppVersion=${VERSION}" -o $@ ${PACKAGE}/main
+${TARGET_WIN32}: ${SOURCE_FILES}
+	GOOS=windows ${GOROOT}/bin/go build -ldflags "-X ${PACKAGE}/config.AppVersion=${VERSION}" -o $@ ${PACKAGE}/main
+win32: ${TARGET_WIN32}
 
 get:
 	go get github.com/BurntSushi/toml
