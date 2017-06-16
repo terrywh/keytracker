@@ -93,7 +93,7 @@
 				this.dataAppend.type = "文本";
 				this.dataAppend.path = "";
 				this.dataAppend.value = "";
-				this.dataAppend.persistent = false;
+				this.dataAppend.persistent = true;
 			},
 			watcherAdd: function() {
 				// 添加监控
