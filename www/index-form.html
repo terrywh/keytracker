@@ -1,0 +1,25 @@
+<form style="display: flex;" v-on:submit.prevent="onSubmit">
+	<div class="input-group">
+		<span class="input-group-addon">数据</span>
+		<input name="key" type="text" class="form-control" placeholder="KEY" v-model.lazy="k"/>
+		<input name="val" type="text" class="form-control" placeholder="VALUE" v-model="value" v-on:click="$event.currentTarget.select()" />
+		<div class="input-group-addon dropdown" title="数据类型">
+			<label class="dropdown-toggle" style="cursor: pointer;" v-on:click.prevent="$event.currentTarget.parentNode.classList.toggle('show');">{{type}}</label>
+			<div class="dropdown-menu">
+				<a class="dropdown-item" href="#" v-on:click.prevent="type='删除'">删除</a>
+				<a class="dropdown-item" href="#" v-on:click.prevent="type='文本'">文本</a>
+				<a class="dropdown-item" href="#" v-on:click.prevent="type='数值'">数值</a>
+				<a class="dropdown-item" href="#" v-on:click.prevent="type='布尔'">布尔</a>
+			</div>
+		</div>
+		<span class="input-group-addon" title="重新打开页面继续存在">
+			<label><input type="checkbox" v-bind:checked="x&0x02" /> 持久</label>
+		</span>
+		<span class="input-group-addon" title="由服务端自动补充后缀">
+			<label><input type="checkbox" v-bind:checked="x&0x04" /> 后缀</label>
+		</span>
+	</div>
+	<button style="margin-left: 1rem;" class="btn btn-primary" type="submit">
+		<i class="fa fa-pencil"></i> 提交
+	</button>
+</form>

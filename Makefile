@@ -1,6 +1,6 @@
 
 PACKAGE=github.com/terrywh/keytracker
-VERSION=0.4.0
+VERSION=1.0.0
 
 VENDORS=${GOPATH}/src/BurntSushi/toml ${GOPATH}/src/julienschmidt/httprouter ${GOPATH}/src/gorilla/websocket
 
@@ -12,17 +12,17 @@ TARGET_WIN32=bin/keytracker.exe
 
 .PHONY: get test run win32
 
-all: ${TARGET_LINUX}
+all: ${TARGET_WIN32}
 
 ${TARGET_LINUX}: ${SOURCE_FILES}
-	GOOS=linux ${GOROOT}/bin/go build -ldflags "-X ${PACKAGE}/config.AppVersion=${VERSION}" -o $@ ${PACKAGE}/main
+	GOOS=linux go build -ldflags "-X ${PACKAGE}/config.AppVersion=${VERSION}" -o $@ ${PACKAGE}/main
 ${TARGET_WIN32}: ${SOURCE_FILES}
-	GOOS=windows ${GOROOT}/bin/go build -ldflags "-X ${PACKAGE}/config.AppVersion=${VERSION}" -o $@ ${PACKAGE}/main
-win32: ${TARGET_WIN32}
+	GOOS=windows go build -ldflags "-X ${PACKAGE}/config.AppVersion=${VERSION}" -o $@ ${PACKAGE}/main
+linux: ${TARGET_LINUX}
 
 get:
 	go get github.com/BurntSushi/toml
 	go get github.com/julienschmidt/httprouter
 	go get github.com/gorilla/websocket
 clean:
-	rm -f ${TARGET}
+	rm -f ${TARGET_LINUX} ${TARGET_WIN32}

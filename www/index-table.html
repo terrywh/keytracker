@@ -1,0 +1,23 @@
+<ul class="index-table">
+	<li class="table-item table-head">
+		<div class="item-path">键值</div>
+		<div class="item-type">类型</div>
+		<div class="item-data">数据</div>
+	</li>
+	<transition-group name="table-item" tag="div">
+		<li v-for="item in data" class="table-item" v-bind:key="item.k">
+			<div class="item-path">
+				<strong v-bind:title="item.k">{{item.k}}</strong>
+			</div>
+			<div class="item-type">
+				<span v-bind:class="{'text-info':type(item.v) == '数值', 'text-success': type(item.v) == '布尔', 'text-warning': type(item.v) == '文本'}">({{type(item.v)}})</span>
+			</div>
+			<div class="item-data">
+				<span class="pull-left">{{item.v}}</span>
+				<a href="#" class="pull-right" v-on:click.prevent="$emit('edit', item.k, item.v)">
+					<i class="fa fa-arrow-up"></i> 编辑
+				</a>
+			</div>
+		</li>
+	</transition-group>
+</ul>

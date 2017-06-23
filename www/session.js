@@ -24,17 +24,24 @@
 			return to;
 		};
 	}
-	function createWebSocket(options, session) {
+	function createWebSocket(options, session, resolve, reject) {
 		var websocket = new WebSocket("ws://" + options.addr + ":" + options.port + "/session"),
 			closing = false;
-		session._cache = session._cache || [];
+
 		websocket.onopen = function(e) {
 			console.log("%c[session] %cconnection established.", "color: #888;", "color: #aaa;");
 			var obj;
+			while(obj = session._watcher.shift()) {
+				websocket.send(JSON.stringify(obj)+"\n");
+			}
 			while(obj = session._cache.shift()) {
 				websocket.send(JSON.stringify(obj)+"\n");
 			}
-			session.onready && session.onready.call(session);
+
+			resolve(session);
+		};
+		websocket.onerror = function(e) {
+			reject(e);
 		};
 		websocket.onclose = function() {
 			if(!closing) {
@@ -58,6 +65,7 @@
 			console.log("%c[session] %cdata recevied: %c"+e.data, "color: #666;", "color: #aaa;", "color: #888;");
 			session.ondata && session.ondata.call(session, data, data.y == 1 ? true: false);
 		};
+
 		session.close = function() {
 			closing = true;
 			console.log("%c[session] %cconnection closing ...", "color: #666;", "color: #aaa;");
@@ -78,20 +86,33 @@
 	function createSession(options) {
 		options = Object.assign({}, optionDefaults, options);
 		var session = {};
-		session.watch   = function(key) {
-			session._write({"k":key,"v":1,"x":256});
+		session._cache   = [];
+		session._watcher = [];
+		session.watchSelf = function(key) {
+			session._watcher.unshift({"k":key,"v":true,"x":257});
+			session._write(session._watcher[0]);
+		}
+		session.watch   = function(key, r) {
+			session._watcher.unshift({"k":key,"v":true,"x":r?258:256});
+			session._write(session._watcher[0]);
 			return session;
 		};
 		session.unwatch = function(key, val, tmp) {
-			session._write({"k":key,"v":0,"x":256});
+			for(var i=0;i<session._watcher.length;++i) {
+				if(session._watcher[i].k == key) {
+					session._watcher.splice(i, 1);
+					break;
+				}
+			}
+			session._write({"k":key,"v":null,"x":256});
 			return session;
 		};
 		session.get   = function(key) {
-			session._write({"k":key,"x":512});
+			session._write({"k":key,"v":null,"x":512});
 			return session;
 		};
-		session.list  = function(key) {
-			session._write({"k":key,"x":1024});
+		session.list  = function(key, r) {
+			session._write({"k":key,"v":null,"x":r?514:513});
 			return session;
 		};
 		session.set = function(key, val, x) {
@@ -103,7 +124,9 @@
 			session._write({"k":key,"v":null,"x":0});
 			return session;
 		};
-		createWebSocket(options, session);
+		session.ready = new Promise(function(resolve, reject) {
+			createWebSocket(options, session, resolve, reject)
+		});
 		return session;
 	}
 
