@@ -13,7 +13,7 @@
 			</div>
 		</div>
 		<span class="input-group-addon" title="重新打开页面继续存在">
-			<label><input type="checkbox" v-bind:checked="x&0x02" /> 持久</label>
+			<label><input type="checkbox" v-bind:checked="x&0x02" v-on:click="debouncePersistent" /> 持久</label>
 		</span>
 		<span class="input-group-addon" title="由服务端自动补充后缀">
 			<label><input type="checkbox" v-bind:checked="x&0x04" /> 后缀</label>

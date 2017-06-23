@@ -59,6 +59,12 @@ Vue.component("index-form",function(resolve, reject) {
 						this.type = "删除";
 					}
 				},
+				debouncePersistent: function() {
+					this.x = this.x & 0x02;
+				},
+				debounceSuffix: function() {
+					this.x = this.x & 0x04;
+				},
 			},
 			watch: {
 				"k": function() {
