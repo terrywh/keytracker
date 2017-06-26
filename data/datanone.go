@@ -11,10 +11,12 @@ import (
 	"encoding/json"
 	"bytes"
 	"github.com/terrywh/keytracker/server"
+	"sync"
 )
 type dataStoreNone struct {
 	dbs  map[string][]byte
 	inc  uint32
+	mtx *sync.Mutex
 	// ifs *os.File
 }
 func newDSNone(path string) (*dataStoreNone, error) {
@@ -22,6 +24,7 @@ func newDSNone(path string) (*dataStoreNone, error) {
 	// var err error
 	ds.dbs = make(map[string][]byte)
 	ds.inc = 0
+	ds.mtx = &sync.Mutex{}
 	// ds.ifs, err = os.OpenFile(path + "/none.db", os.O_RDWR | os.O_CREATE, os.ModeExclusive | 0666)
 	// if err != nil {
 	// 	return nil, err
@@ -52,6 +55,8 @@ func (ds *dataStoreNone) Key(k string, suffix bool) string {
 	return k
 }
 func (ds *dataStoreNone) Set(k string, v interface{}) bool {
+	ds.mtx.Lock()
+	defer ds.mtx.Unlock()
 	vb, ok := ds.dbs[k]
 	vc, _ := json.Marshal(v)
 	if ok && bytes.Equal(vb, vc) {
@@ -70,6 +75,8 @@ func (ds *dataStoreNone) Get(k string) interface{} {
 	return v
 }
 func (ds *dataStoreNone) Del(k string) bool {
+	ds.mtx.Lock()
+	defer ds.mtx.Unlock()
 	_, ok := ds.dbs[k]
 	if !ok {
 		return false
