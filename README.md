@@ -2,6 +2,12 @@
 
 简单 Key/Value 数据存储，读取；定义 Key 层级关系；监控 Key 对应变更，监控直接子集、所有子集；
 
+### 使用
+启动 bin/keytracker(.exe) 即可，也可设置以下参数：
+* listen - 监听地址，默认 ":7472" 监听所有地址的 7472 端口；
+* engine - 存储引擎，目前仅支持 bolt / none 两种，默认使用 bolt 使用 https://github.com/boltdb/bolt 作为数据存储（支持持久化、性能优异），none 使用 golang 内置的 map 作为数据存储（不提供持久化，查询性能较慢）
+* logger - 日志等级，默认 debug，可以指定 trace/debug/info/warning/error/fatal 中的任意一个；
+
 ### 交互协议
 
 #### 客户端发送数据：

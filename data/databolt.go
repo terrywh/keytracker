@@ -31,6 +31,7 @@ func newDSBolt(path string) (*dataStoreBolt, error) {
 	var bk *bolt.Bucket
 	bk, err = tx.CreateBucketIfNotExists(bucketName)
 	if err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 	// 清理历史数据中的临时项
@@ -73,6 +74,7 @@ func (ds *dataStoreBolt) Set(k string, v interface{}) bool {
 	vb := bk.Get(kb)
 	vc, _ := json.Marshal(v)
 	if bytes.Equal(vb, vc) {
+		tx.Commit()
 		return false
 	}
 	bk.Put(kb, vc)
@@ -97,6 +99,7 @@ func (ds *dataStoreBolt) Del(k string) bool {
 	kb := []byte(k)
 	vb := bk.Get(kb)
 	if vb == nil {
+		tx.Commit()
 		return false
 	}
 	bk.Delete(kb)

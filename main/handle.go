@@ -92,7 +92,6 @@ func RequestHandler(s *server.Session, r *server.Request) {
 		if r.V == nil || r.X == 0x00 {
 			r.K = dds.Key(r.K, false)
 			changed = dds.Del(r.K)
-			fmt.Println("del", r.K, changed)
 		} else if (r.X & 0x02) > 0 { // 永久
 			r.K = dds.Key(r.K, (r.X & 0x04) > 0)
 			r.X = r.X & 0x06
@@ -100,7 +99,7 @@ func RequestHandler(s *server.Session, r *server.Request) {
 			mapGuard.Lock()
 			delete(mapElement[s], r.K)
 			mapGuard.Unlock()
-		} else if (r.X & 0x01) > 0 { // 临时
+		} else { // 临时
 			r.K = dds.Key(r.K, (r.X & 0x04) > 0)
 			r.X = r.X & 0x05
 			changed = dds.Set(r.K, r)
@@ -166,8 +165,7 @@ func changeNotify(o string, v interface{}, k string, l int) {
 	// 当前 KEY 的监控
 	if mapSession, ok := keySession[o]; ok {
 		for s, x := range mapSession {
-			fmt.Printf("N: %v %v %v %v\n", k, o, x, l)
-			if (x & 0x02) > 0 && l > 0 || (x & 0x01) > 0 && l == 1 || x == 256 && l == 0 {
+			if (x & 0x02) > 0 && l > 0 || (x & 0x01) > 0 && l == 0 || x == 256 && l == 1 {
 				writeTo(s, k, v, 2)
 			}
 		}

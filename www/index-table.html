@@ -5,7 +5,7 @@
 		<div class="item-data">数据</div>
 	</li>
 	<transition-group name="table-item" tag="div">
-		<li v-for="item in data" class="table-item" v-bind:key="item.k">
+		<li v-for="item in data" class="table-item" v-bind:class="{'table-item-blink':item.blink}" v-bind:key="item.k">
 			<div class="item-path">
 				<strong v-bind:title="item.k">{{item.k}}</strong>
 			</div>

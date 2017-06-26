@@ -33,9 +33,10 @@ func main() {
 
 	go svr.ListenAndServe(ServerAddress)
 	waitSignal()
-	logger.Info("exiting ...", ServerEngine)
+	logger.Info("server shutting ...")
 	svr.Close()
 	time.Sleep(1 * time.Second)
+	logger.Info("engine shutdown ...", ServerEngine)
 	dds.Close()
 	time.Sleep(1 * time.Second)
 }

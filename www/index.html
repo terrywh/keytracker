@@ -70,13 +70,16 @@
 			a:active {
 				text-decoration: none;
 			}
+			.index-table .table-item.table-item-blink {
+				background: #6c9;
+			}
 		</style>
 	</head>
 	<body>
 		<div id="app" class="container-fluid">
 			<div class="row">
 				<div class="col-3">
-					<h4>KeyTracker 数据管理</h4>
+					<div class="text-muted">* 注：监听并自动更新数据</div>
 				</div>
 				<div class="col-9">
 					<index-form ref="editor"></index-form>

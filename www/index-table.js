@@ -17,6 +17,13 @@ Vue.component("index-table",function(resolve, reject) {
 							break;
 						}
 					}
+					item.blink = true;
+					setTimeout(function() {
+						item.blink = null;
+						setTimeout(function() {
+							delete item.blink;
+						}, 0);
+					}, 1000);
 					if(item.v !== null) self.data.splice(i, 0, item);
 				};
 				$session.ready.then(function() {

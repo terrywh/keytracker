@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 	"io"
+	"sync"
 )
 var ErrLevelNotRecognize = errors.New("unable to recognize level settings")
 var LogLevels = [...]string {
@@ -16,9 +17,11 @@ var LogLevels = [...]string {
 	"error",
 	"fatal",
 }
-var wrlvl int
-var wrlow io.Writer
-var whigh io.Writer
+var wrlvl  int
+var wrlow  io.Writer
+var whigh  io.Writer
+var wlock *sync.Mutex
+
 func Init(level interface{}, w1 io.Writer, w2 io.Writer) error {
 	switch v := level.(type) {
 	case string:
@@ -43,9 +46,12 @@ func Init(level interface{}, w1 io.Writer, w2 io.Writer) error {
 INIT_SUCCESS:
 	wrlow = w1
 	whigh = w2
+	wlock = &sync.Mutex{}
 	return nil
 }
 func Trace(argv ...interface{}) {
+	wlock.Lock()
+	defer wlock.Unlock()
 	if wrlvl > 0 {
 		return
 	}
@@ -56,6 +62,8 @@ func Trace(argv ...interface{}) {
 	fmt.Fprintf(wrlow, "\n")
 }
 func Debug(argv ...interface{}) {
+	wlock.Lock()
+	defer wlock.Unlock()
 	if wrlvl > 1 {
 		return
 	}
@@ -66,6 +74,8 @@ func Debug(argv ...interface{}) {
 	fmt.Fprintf(wrlow, "\n")
 }
 func Info(argv ...interface{}) {
+	wlock.Lock()
+	defer wlock.Unlock()
 	if wrlvl > 2 {
 		return
 	}
@@ -76,6 +86,8 @@ func Info(argv ...interface{}) {
 	fmt.Fprintf(wrlow, "\n")
 }
 func Warning(argv ...interface{}) {
+	wlock.Lock()
+	defer wlock.Unlock()
 	if wrlvl > 3 {
 		return
 	}
@@ -86,6 +98,8 @@ func Warning(argv ...interface{}) {
 	fmt.Fprintf(whigh, "\n")
 }
 func Warn(argv ...interface{}) {
+	wlock.Lock()
+	defer wlock.Unlock()
 	if wrlvl > 3 {
 		return
 	}
@@ -96,6 +110,8 @@ func Warn(argv ...interface{}) {
 	fmt.Fprintf(whigh, "\n")
 }
 func Error(argv ...interface{}) {
+	wlock.Lock()
+	defer wlock.Unlock()
 	if wrlvl > 4 {
 		return
 	}
@@ -106,6 +122,8 @@ func Error(argv ...interface{}) {
 	fmt.Fprintf(whigh, "\n")
 }
 func Fatal(argv ...interface{}) {
+	wlock.Lock()
+	defer wlock.Unlock()
 	if wrlvl > 5 {
 		return
 	}
