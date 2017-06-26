@@ -1,6 +1,6 @@
 ### 功能
 
-简单 Key/Value 数据存储，读取；定义 Key 层级关系；监控 Key 对应变更，监控直接子集、所有子集；
+简单高效的 Key/Value 数据存储、读取；支持 Key 层级关系遍历、监控；监控对应变更，监控直接子集、递归子集；使用 [bolt](https://github.com/boltdb/bolt) 引擎，支持持久化；
 
 ### 使用
 启动 bin/keytracker(.exe) 即可，也可设置以下参数：
