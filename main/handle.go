@@ -176,7 +176,6 @@ func changeNotify(o string, v interface{}, k string, l int) {
 	if o = changeParent(o); o == "" {
 		return
 	}
-	fmt.Println("K:",k, "O:", o)
 	changeNotify(o, v, k, l+1)
 }
 func changeParent(k string) string {

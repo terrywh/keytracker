@@ -18,6 +18,8 @@ type DataStore interface {
 func New(which, path string) (DataStore, error) {
 	if which == "bolt" {
 		return newDSBolt(path)
+	}else if which == "none" {
+		return newDSNone(path)
 	}else{
 		return nil, ErrDataEngineNotSupported
 	}
