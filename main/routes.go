@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"github.com/julienschmidt/httprouter"
 	"runtime"
+	"github.com/terrywh/keytracker/logger"
 )
 func initRoutes() {
 	svr.Router.NotFound = http.FileServer(http.Dir(AppPath + "/www"))
@@ -28,14 +29,14 @@ func routerPush(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	w.Header().Set("Content-Type", "text/json")
 	raw, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		// log.Println("[warning] failed to read json:", err)
+		logger.Warn("failed to read json:", err)
 		w.Write([]byte("{\"error\":\"failed to read json\"}"))
 		return
 	}
 	var req server.Request
 	err = json.Unmarshal(raw, &req)
 	if err != nil {
-		// log.Println("[warning] failed to decode json:", err)
+		logger.Warn("failed to decode json:", err)
 		w.Write([]byte("{\"error\":\"failed to decode json\"}"))
 		return
 	}

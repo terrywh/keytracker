@@ -10,7 +10,9 @@ import (
 var (
 	AppVersion    string = "alpha"
 	AppPath       string
+	AppLogger     string
 	ServerAddress string
+	ServerEngine  string = "bolt"
 )
 
 func init() {
@@ -22,4 +24,10 @@ func init() {
 		}
 	}
 	flag.StringVar(&ServerAddress, "listen", ":7472", "keytracker will be listening on this addr/port")
+	flag.StringVar(&ServerEngine, "engine", "bolt", "data engine, can be one of 'bolt'")
+	flag.StringVar(&AppLogger, "logger", "debug", "logger level")
+	lv := os.Getenv("LOGGER")
+	if lv != "" {
+		AppLogger = lv
+	}
 }

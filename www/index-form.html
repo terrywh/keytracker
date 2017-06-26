@@ -16,7 +16,7 @@
 			<label><input type="checkbox" v-bind:checked="x&0x02" v-on:click="debouncePersistent" /> 持久</label>
 		</span>
 		<span class="input-group-addon" title="由服务端自动补充后缀">
-			<label><input type="checkbox" v-bind:checked="x&0x04" /> 后缀</label>
+			<label><input type="checkbox" v-bind:checked="x&0x04" v-on:click="debounceSuffix" /> 后缀</label>
 		</span>
 	</div>
 	<button style="margin-left: 1rem;" class="btn btn-primary" type="submit">

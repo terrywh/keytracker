@@ -2,7 +2,6 @@ package logger
 
 import (
 	"errors"
-	"os"
 	"strings"
 	"fmt"
 	"time"
@@ -16,16 +15,6 @@ var LogLevels = [...]string {
 	"warning",
 	"error",
 	"fatal",
-}
-func init() {
-	lv := os.Getenv("LOGGER")
-	if lv == "" {
-		lv = "info"
-	}
-	err := Init(lv, os.Stdout, os.Stderr)
-	if err != nil {
-		panic(err)
-	}
 }
 var wrlvl int
 var wrlow io.Writer

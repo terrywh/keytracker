@@ -60,10 +60,18 @@ Vue.component("index-form",function(resolve, reject) {
 					}
 				},
 				debouncePersistent: function() {
-					this.x = this.x & 0x02;
+					var self = this;
+					clearTimeout(this.$dpTimeout);
+					this.$dpTimeout = setTimeout(function() {
+						self.x = self.x | 0x02;
+					}, 50)
 				},
 				debounceSuffix: function() {
-					this.x = this.x & 0x04;
+					var self = this;
+					clearTimeout(this.$dsTimeout);
+					this.$dsTimeout = setTimeout(function() {
+						self.x = self.x | 0x04;
+					}, 50);
 				},
 			},
 			watch: {

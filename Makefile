@@ -12,13 +12,13 @@ TARGET_WIN32=bin/keytracker.exe
 
 .PHONY: get test run win32
 
-all: ${TARGET_WIN32}
+all: ${TARGET_LINUX}
 
 ${TARGET_LINUX}: ${SOURCE_FILES}
 	GOOS=linux go build -ldflags "-X ${PACKAGE}/config.AppVersion=${VERSION}" -o $@ ${PACKAGE}/main
 ${TARGET_WIN32}: ${SOURCE_FILES}
 	GOOS=windows go build -ldflags "-X ${PACKAGE}/config.AppVersion=${VERSION}" -o $@ ${PACKAGE}/main
-linux: ${TARGET_LINUX}
+win32: ${TARGET_WIN32}
 
 get:
 	go get github.com/BurntSushi/toml

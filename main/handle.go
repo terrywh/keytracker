@@ -50,19 +50,19 @@ func StartHandler(s *server.Session) {
 func RequestHandler(s *server.Session, r *server.Request) {
 	if r.X >= 512 { // 读取数据
 		r.K  = dds.Key(r.K, false)
-		if (r.X & 0x02) > 0 { // 直接子集
+		if (r.X & 0x02) > 0 { // 循环子集
 			dds.List(r.K, func(k string, v interface{}) bool {
 				writeTo(s, k, v.(server.Request).V, 2)
 				return true
 			}, true)
-		}else if (r.X & 0x01) > 0 { // 循环子集
+		}else if (r.X & 0x01) > 0 { // 单条
+			req := dds.Get(r.K).(server.Request)
+			writeTo(s, req.K, req.V, 0)
+		}else { // 直接子集
 			dds.List(r.K, func(k string, v interface{}) bool {
 				writeTo(s, k, v.(server.Request).V, 2)
 				return true
 			}, false)
-		}else { // 单条
-			req := dds.Get(r.K).(server.Request)
-			writeTo(s, req.K, req.V, 0)
 		}
 	}else if r.X >= 256 { // 监控数据
 		mapGuard.Lock()
@@ -167,7 +167,7 @@ func changeNotify(o string, v interface{}, k string, l int) {
 	if mapSession, ok := keySession[o]; ok {
 		for s, x := range mapSession {
 			fmt.Printf("N: %v %v %v %v\n", k, o, x, l)
-			if (x & 0x02) > 0 && l > 0 || (x & 0x01) > 0 && l == 0 || x == 256 && l == 1 {
+			if (x & 0x02) > 0 && l > 0 || (x & 0x01) > 0 && l == 1 || x == 256 && l == 0 {
 				writeTo(s, k, v, 2)
 			}
 		}

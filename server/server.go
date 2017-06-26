@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"github.com/julienschmidt/httprouter"
 	"github.com/gorilla/websocket"
+	"github.com/terrywh/keytracker/logger"
 )
 
 type Request struct {
@@ -19,11 +20,12 @@ type Server struct {
 	Router *httprouter.Router
 	tcpLst  net.Listener
 	htpSvr  http.Server
-	htpLst  httpListener
+	htpLst *httpListener
 	wskUpg  websocket.Upgrader
 	OnStart   func(s *Session)
 	OnRequest func(s *Session, r *Request)
 	OnClose   func(s *Session)
+	closing bool
 }
 
 func New() *Server {
@@ -44,18 +46,20 @@ func (svr *Server) ListenAndServe(addr string) {
 	// TCP 监听
 	svr.tcpLst, err = net.Listen("tcp", addr)
 	if err != nil {
-		// log.Fatal("[fatal] server failed to listen on", addr)
+		logger.Fatal("server failed to listen on", addr)
 	}
-	// log.Println("[info] server started on", addr)
+	logger.Info("server started on", addr)
 	// HTTP 服务
 	svr.htpLst = newHttpListener(svr.tcpLst.Addr())
 	go svr.htpSvr.Serve(svr.htpLst)
 
 	// 连接识别逻辑
-	for {
+	for !svr.closing {
 		ccc, err := svr.tcpLst.Accept()
 		if err != nil {
-			// log.Println("[error] failed to accept socket: ", err)
+			if !svr.closing { // 若由于主动关闭导致的 accept 错误，应忽略
+				logger.Fatal("failed to accept socket: ", err)
+			}
 			break
 		}
 		// 连接基础处理
@@ -67,7 +71,7 @@ func (svr *Server) ListenAndServe(addr string) {
 		cbeg, err := cbuf.Peek(1)
 		if err != nil {
 			// 发生错误即无法识别协议
-			// log.Println("[warning] socket diconnected before protocol detection")
+			logger.Warn("socket diconnected before protocol detection")
 		} else if cbeg[0] == byte('{') {
 			// TCP 连接 JSON 数据行协议
 			s := NewSession(&scTCPSocket{cbuf, conn, conn}, conn.RemoteAddr().String())
@@ -93,6 +97,10 @@ func (svr *Server) shWebsocket(w http.ResponseWriter, r *http.Request, p httprou
 
 
 func (svr *Server) Close() {
+	if svr.closing {
+		return
+	}
+	svr.closing = true
+	svr.htpLst.Close()
 	svr.tcpLst.Close()
-	svr.htpSvr.Close()
 }
