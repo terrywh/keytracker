@@ -117,7 +117,11 @@ func (ds *dataStoreBolt) List(k string, cb func(key string, val interface{}) boo
 		json.Unmarshal(vi, &v)
 		if v.K == k {
 			continue
-		} else if !strings.HasPrefix(v.K, k) || (!r && strings.Count(v.K, "/") != kc + 1) || !cb(string(ki), v){
+		} else if !strings.HasPrefix(v.K, k) {
+			break
+		} else if strings.Count(v.K, "/") != kc + 1 && !r {
+			continue
+		} else if !cb(string(ki), v) {
 			break
 		}
 	}
