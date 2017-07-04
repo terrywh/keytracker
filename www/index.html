@@ -28,6 +28,8 @@
 			.index-table {
 				display: block;
 				list-style: none;
+				overflow-y: scroll;
+				height: 100%;
 			}
 			.index-table .table-item {
 				display: flex;
@@ -76,7 +78,7 @@
 		</style>
 	</head>
 	<body>
-		<div id="app" class="container-fluid">
+		<div id="app" class="container-fluid" style="height: 100%;">
 			<div class="row">
 				<div class="col-3">
 					<div class="text-muted">* 注：监听并自动更新数据</div>
@@ -85,9 +87,10 @@
 					<index-form ref="editor"></index-form>
 				</div>
 			</div>
-			<div class="row">
+			<div class="row" style="width:100%; height: 100%; padding-top: 100px; top: -50px; position: absolute;">
 				<div class="col-12">
 					<index-table v-on:edit="onEdit"></index-table>
+					<div class="clearfix"></div>
 				</div>
 			</div>
 		</div>

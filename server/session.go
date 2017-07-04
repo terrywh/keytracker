@@ -20,12 +20,14 @@ func NewSession(conn io.ReadWriteCloser, addr string) *Session {
 func (s *Session) Start(svr *Server) {
 	svr.OnStart(s)
 	d := json.NewDecoder(s.conn)
-	for d.More() {
+	for d.More() && !svr.closing {
 		r := Request{}
 		if err := d.Decode(&r); err != nil || r.K == "" {
 			continue
 		}
-		svr.OnRequest(s, &r)
+		if !svr.closing {
+			svr.OnRequest(s, &r)
+		}
 	}
 	s.lock.Lock()
 	s.conn.Close()
