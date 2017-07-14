@@ -7,13 +7,13 @@ import (
 )
 type Session struct {
 	conn io.ReadWriteCloser
-	lock *sync.RWMutex
+	lock *sync.Mutex
 	RemoteAddr string
 }
 func NewSession(conn io.ReadWriteCloser, addr string) *Session {
 	return &Session{
 		conn: conn,
-		lock: &sync.RWMutex{},
+		lock: &sync.Mutex{},
 		RemoteAddr: addr,
 	}
 }
@@ -29,12 +29,12 @@ func (s *Session) Start(svr *Server) {
 			svr.OnRequest(s, &r)
 		}
 	}
-	s.lock.Lock()
-	s.conn.Close()
-	s.lock.Unlock()
+	s.Close()
 	svr.OnClose(s)
 }
 func (s *Session) Close() {
+	s.lock.Lock()
+	defer s.lock.Unlock()
 	s.conn.Close()
 }
 func (s *Session) Write(b []byte) (int, error) {
